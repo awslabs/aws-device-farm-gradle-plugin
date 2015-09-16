@@ -1,0 +1,153 @@
+/*
+ * Copyright 2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+sourceCompatibility = '8'
+targetCompatibility = '8'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+configurations {
+    gradleApi
+    compile.extendsFrom gradleApi
+    gradleApi.extendsFrom groovy
+}
+
+dependencies {
+    gradleApi gradleApi()
+    compile localGroovy()
+
+    compile 'com.android.tools.build:builder-test-api:0.5.2'
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'com.amazonaws:aws-java-sdk:1.10.15'
+    testCompile 'org.testng:testng:6.8.8'
+    testCompile 'com.android.tools.build:gradle:1.3.0'
+    testCompile 'org.jmockit:jmockit:1.19'
+}
+
+
+test {
+    useTestNG()
+}
+
+group 'com.amazonaws'
+version '1.0'
+
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+processResources {
+    filesMatching('**/version.properties') {
+        filter {
+            it.replace('project.version', project.version)
+        }
+    }
+}
+
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn:classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+javadoc {
+    exclude               "**/internal/**"
+    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+    title                 "AWS Device Farm Plugin for Gradle"
+}
+
+task javadocJar(type: Jar, dependsOn:javadoc) {
+    classifier         'javadoc'
+    from               javadoc.destinationDir
+}
+
+// add javadoc/source jar tasks as artifacts
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
+
+task publishLocal(type: Upload) {
+    configuration = configurations.archives
+    repositories {
+        mavenDeployer {
+            repository(url: uri('repo'))
+        }
+    }
+}
+
+project.ext.sonatypeUsername = hasProperty('sonatypeUsername') ? sonatypeUsername : ""
+project.ext.sonatypePassword = hasProperty('sonatypePassword') ? sonatypePassword : ""
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+
+            beforeDeployment { MavenDeployment deployment ->
+                if (project.ext.sonatypeUsername.length() == 0 || project.ext.sonatypePassword.length() == 0) {
+                    throw new StopExecutionException("uploadArchives cannot be called without sonatype username and password")
+                }
+
+                signing.signPom(deployment)
+            }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: project.ext.sonatypeUsername, password: project.ext.sonatypePassword)
+            }
+
+            pom.project {
+                name 'AWS Device Farm Plugin for Gradle'
+                description 'Test your app on real devices in the AWS Cloud.'
+                url 'https://aws.amazon.com/device-farm/'
+                inceptionYear '2015'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                scm {
+                    url "https://github.com/awslabs/aws-device-farm-gradle-plugin"
+                    connection "git://github.com/awslabs/aws-device-farm-gradle-plugin.git"
+                }
+                developers {
+                    developer {
+                        id 'amazonwebservices'
+                        organization = 'Amazon Web Services'
+                        organizationUrl 'https://aws.amazon.com'
+                        roles {
+                            role 'developer'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
