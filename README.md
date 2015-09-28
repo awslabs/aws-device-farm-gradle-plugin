@@ -13,9 +13,11 @@ Usage
 
 ## Building the plugin:
 
+Building the plugin is optional.  The plugin is published through Maven Central.  If you wish to allow gradle to download the plugin directly skip this section and jump to [Using the plugin](#using-the-plugin)  
+
 1. Clone the GitHub repository.
 2. Build the plugin using ```gradle install```.
-4. The plugin will be installed to your local maven repository.
+3. The plugin will be installed to your local maven repository.
 
 ## Using the plugin:
 1. Add the plugin artifact to your dependency list in build.gradle.
