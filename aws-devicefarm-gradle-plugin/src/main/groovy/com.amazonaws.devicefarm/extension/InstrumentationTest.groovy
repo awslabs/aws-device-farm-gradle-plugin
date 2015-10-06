@@ -25,4 +25,7 @@ class InstrumentationTest extends ConfiguredTest implements TestPackageProvider,
         this.testPackageUploadType = UploadType.INSTRUMENTATION_TEST_PACKAGE
     }
 
+    @Override
+    boolean isValid() { return true }
+
 }
