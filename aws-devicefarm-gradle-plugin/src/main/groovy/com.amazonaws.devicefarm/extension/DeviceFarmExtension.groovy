@@ -33,6 +33,11 @@ class DeviceFarmExtension {
     String devicePool = "Top Devices"
 
     /**
+     * [Optional] Name of Run.
+     */
+    String runName
+
+    /**
      * You must have a subscription to set this to false
      */
     boolean metered = true
@@ -79,6 +84,10 @@ class DeviceFarmExtension {
         projectName != null &&
         authentication.valid &&
         test != null && test.valid
+    }
+
+    String getRunName(final File testedApk) {
+        runName ?: "${testedApk.name} (Gradle)"
     }
 
     void useMeteredDevices() {
@@ -134,5 +143,4 @@ class DeviceFarmExtension {
         test = appExplorerTest
 
     }
-
 }
