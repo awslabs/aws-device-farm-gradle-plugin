@@ -66,10 +66,10 @@ Building the plugin is optional.  The plugin is published through Maven Central.
  
             extraDataZipFile file("relative/path/to/zip") // default null
             auxiliaryApps [file("path1"), file("path2")] // default empty list
-            wifi on
-            bluetooth off
-            gps off
-            nfc on
+            wifi “on”
+            bluetooth ”off”
+            gps ”off”
+            nfc ”on”
             latitude 47.6204 // default
             longitude -122.3491 // default
         }

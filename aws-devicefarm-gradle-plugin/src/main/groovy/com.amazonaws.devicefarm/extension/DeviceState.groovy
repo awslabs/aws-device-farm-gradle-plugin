@@ -38,10 +38,10 @@ class DeviceState {
     //These methods make the '=' optional when configuring the plugin
     void extraDataZipFile(File val) { extraDataZipFile = val }
     void auxiliaryApps(List<File> val) { auxiliaryApps = val }
-    void wifi(RadioOnOff b) { wifiOn = b.bool }
-    void bluetooth(RadioOnOff b) { bluetoothOn = b.bool }
-    void gps(RadioOnOff b) { gpsOn = b.bool }
-    void nfc(RadioOnOff b) { nfcOn = b.bool }
+    void wifi(String onOff) { wifiOn = RadioOnOff.valueOf(onOff).bool}
+    void bluetooth(String onOff) { bluetoothOn = RadioOnOff.valueOf(onOff).bool}
+    void gps(String onOff) { gpsOn = RadioOnOff.valueOf(onOff).bool}
+    void nfc(String onOff) { nfcOn = RadioOnOff.valueOf(onOff).bool}
     void latitude(double d) { latitude = d }
     void longitude(double d) { longitude = d }
 
