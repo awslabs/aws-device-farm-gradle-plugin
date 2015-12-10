@@ -32,7 +32,7 @@ Building the plugin is optional.  The plugin is published through Maven Central.
         
         dependencies {        
             classpath 'com.android.tools.build:gradle:1.3.0'           
-            classpath 'com.amazonaws:aws-devicefarm-gradle-plugin:1.0'            
+            classpath 'com.amazonaws:aws-devicefarm-gradle-plugin:1.1'
         }        
     }
 ```
