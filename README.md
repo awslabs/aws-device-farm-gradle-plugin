@@ -32,12 +32,12 @@ Building the plugin is optional.  The plugin is published through Maven Central.
         
         dependencies {        
             classpath 'com.android.tools.build:gradle:1.3.0'           
-            classpath 'com.amazonaws:aws-devicefarm-gradle-plugin:1.1'
+            classpath 'com.amazonaws:aws-devicefarm-gradle-plugin:1.2'
         }        
     }
 ```
 
-2. Configure the plugin in your build.gradle file. See below for test specific configuration.
+2. Configure the plugin in your module’s build.gradle file. See below for test specific configuration.
 
 ```
     apply plugin: 'devicefarm'
@@ -245,15 +245,21 @@ As Device Farm supports additional test types the plugin must be extended to ena
 Dependencies
 ============
 
-Runtime
--------
+
+Java SDK (Android Studio Project)
+--------
+* Java 7
+
+
+Runtime (Include these in your build.gradle)
+--------------------------------------------
 
 * AWS SDK 1.10.15 or later.
 * Android tools builder test api 0.5.2
 * Apache Commons Lang3 3.3.4
 
-For Unit tests
---------------
+For Unit tests (Include these in your build.gradle)
+---------------------------------------------------
  
 * Testng 6.8.8
 * Jmockit 1.19

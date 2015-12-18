@@ -15,14 +15,12 @@
  */
 package com.amazonaws.devicefarm;
 
-import com.amazonaws.devicefarm.extension.Authentication;
 import com.amazonaws.devicefarm.extension.DeviceFarmExtension;
 import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
 import com.amazonaws.services.devicefarm.model.*;
 import com.android.build.gradle.AppExtension;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Mocked;
 import mockit.Verifications;
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
@@ -65,14 +63,14 @@ public class DeviceFarmPluginTest {
     @Test
     public void instrumentationTest(@Injectable File testPackage, @Injectable File testedApp) throws IOException {
 
-        ListProjectsResult projectList = new ListProjectsResult();
-        com.amazonaws.services.devicefarm.model.Project myProject = new com.amazonaws.services.devicefarm.model.Project()
+        final ListProjectsResult projectList = new ListProjectsResult();
+        final com.amazonaws.services.devicefarm.model.Project myProject = new com.amazonaws.services.devicefarm.model.Project()
                 .withName("MyProject")
                 .withArn("1234");
 
         projectList.setProjects(Arrays.asList(myProject));
 
-        ListDevicePoolsResult devicePoolList = new ListDevicePoolsResult();
+        final ListDevicePoolsResult devicePoolList = new ListDevicePoolsResult();
         devicePoolList.setDevicePools(Arrays.asList(new DevicePool().withName("Top Devices").withArn("1234")));
 
         DeviceFarmExtension extension = new DeviceFarmExtension(gradleProject);
@@ -80,7 +78,7 @@ public class DeviceFarmPluginTest {
 
         DeviceFarmServer server = new DeviceFarmServer(extension, loggerMock, apiMock, uploaderMock, new DeviceFarmUtils(apiMock, extension));
 
-        ScheduleRunResult runResult = new ScheduleRunResult();
+        final ScheduleRunResult runResult = new ScheduleRunResult();
         runResult.setRun(new Run());
         runResult.getRun().setArn("arn:1:2:3:4:5:runarn/projarn");
 

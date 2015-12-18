@@ -20,13 +20,12 @@ import com.amazonaws.devicefarm.extension.TestPackageProvider;
 import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
 import com.amazonaws.services.devicefarm.model.*;
 import com.android.builder.testing.api.TestServer;
+import com.google.common.collect.Lists;
 import org.gradle.api.logging.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
-
 
 /**
  * Sends a test run request to AWS Device Farm.
@@ -99,7 +98,7 @@ public class DeviceFarmServer extends TestServer {
                 .withTestPackageArn(uploadTestPackageIfNeeded(project, testPackage));
 
         final ScheduleRunConfiguration configuration = new ScheduleRunConfiguration()
-                .withAuxiliaryApps(auxApps.stream().map(Upload::getArn).collect(Collectors.toList()))
+                .withAuxiliaryApps(getAuxAppArns(auxApps))
                 .withExtraDataPackageArn(extraDataArn)
                 .withLocale(extension.getDeviceState().getLocale().toString())
                 .withLocation(extension.getDeviceState().getLocation())
@@ -151,10 +150,15 @@ public class DeviceFarmServer extends TestServer {
         final Collection<Upload> auxApps = uploader.batchUpload(extension.getDeviceState().getAuxiliaryApps(),
                 project, UploadType.ANDROID_APP);
 
-        auxApps.stream().forEach(
-                upload ->
-                        logger.lifecycle(String.format("Will install additional app %s, %s",
-                                upload.getName(), upload.getArn())));
+        if (auxApps == null || auxApps.size() == 0) {
+            return null;
+        }
+
+        for (Upload auxApp : auxApps) {
+            logger.lifecycle(String.format("Will install additional app %s, %s",
+                    auxApp.getName(), auxApp.getArn()));
+        }
+
         return auxApps;
     }
 
@@ -177,7 +181,19 @@ public class DeviceFarmServer extends TestServer {
         return extraDataArn;
     }
 
+    private List<String> getAuxAppArns(Collection<Upload> auxUploads) {
+        List<String> auxAppArns = Lists.newArrayList();
 
+        if (auxAppArns == null || auxAppArns.size() == 0) {
+           return auxAppArns;
+        }
+
+        for (Upload auxApp : auxUploads) {
+            auxAppArns.add(auxApp.getArn());
+        }
+
+        return auxAppArns;
+    }
 
     /**
      * Verify the Device Farm extension is properly configured.
