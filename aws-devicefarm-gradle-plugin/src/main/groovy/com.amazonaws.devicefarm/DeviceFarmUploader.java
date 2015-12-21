@@ -17,6 +17,7 @@ package com.amazonaws.devicefarm;
 
 import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
 import com.amazonaws.services.devicefarm.model.*;
+import com.google.common.collect.Lists;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.FileEntity;
@@ -28,9 +29,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+import java.util.concurrent.Future;
 
 
 /**
@@ -97,19 +99,32 @@ public class DeviceFarmUploader {
 
     public Collection<Upload> batchUpload(final List<File> artifacts, final Project project, final UploadType uploadType) {
 
-        return artifacts.stream()
-                .map(app -> uploadExecutor.submit(() -> upload(app, project, uploadType)))
-                .collect(Collectors.toList())
-                .stream()
-                .map(f -> {
-                    try {
-                        return f.get();
-                    } catch (Exception e) {
-                        throw new DeviceFarmException(e);
-                    }
-                })
-                .collect(Collectors.toList());
+        List<Future<Upload>> futures = Lists.newArrayList();
 
+        // Upload each artifact and create a future for it.
+        for (final File file : artifacts) {
+            futures.add(uploadExecutor.submit(
+                    new Callable<Upload>() {
+                        @Override
+                        public Upload call() throws Exception {
+                            return upload(file, project, uploadType);
+                        }
+                    }
+            ));
+        }
+
+        List<Upload> uploads = Lists.newArrayList();
+
+        // Check future results and append the upload results to a list.
+        for (Future<Upload> f : futures) {
+            try {
+                uploads.add(f.get());
+            } catch (Exception e) {
+                throw new DeviceFarmException(e);
+            }
+        }
+
+        return uploads;
     }
 
     private void waitForUpload(final File file, final Upload upload) {
