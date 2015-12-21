@@ -17,6 +17,7 @@ package com.amazonaws.devicefarm.extension
 
 import com.amazonaws.services.devicefarm.model.Location
 import com.amazonaws.services.devicefarm.model.Radios
+import org.gradle.api.file.FileCollection
 
 /**
  * DeviceState parameters
@@ -37,7 +38,7 @@ class DeviceState {
 
     //These methods make the '=' optional when configuring the plugin
     void extraDataZipFile(File val) { extraDataZipFile = val }
-    void auxiliaryApps(List<File> val) { auxiliaryApps = val }
+    void auxiliaryApps(FileCollection val) { auxiliaryApps = val as List }
     void wifi(String onOff) { wifiOn = RadioOnOff.valueOf(onOff).bool}
     void bluetooth(String onOff) { bluetoothOn = RadioOnOff.valueOf(onOff).bool}
     void gps(String onOff) { gpsOn = RadioOnOff.valueOf(onOff).bool}

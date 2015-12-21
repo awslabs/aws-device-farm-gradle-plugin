@@ -64,8 +64,8 @@ Building the plugin is optional.  The plugin is published through Maven Central.
         // optional block, radios default to 'on' state, all parameters optional
         devicestate {
  
-            extraDataZipFile file("relative/path/to/zip") // default null
-            auxiliaryApps [file("path1"), file("path2")] // default empty list
+            extraDataZipFile file("path/to/zip") // or ‘null’ if you have no extra data. Default is null.
+            auxiliaryApps files(file("path/to/app"), file("path/to/app2")) // or ‘files()’ if you have no auxiliary apps. Default is an empty list.
             wifi "on"
             bluetooth "off"
             gps "off"
@@ -248,7 +248,7 @@ Dependencies
 
 Java SDK (Android Studio Project)
 --------
-* Java 7
+* Java 7 or higher
 
 
 Runtime (Include these in your build.gradle)

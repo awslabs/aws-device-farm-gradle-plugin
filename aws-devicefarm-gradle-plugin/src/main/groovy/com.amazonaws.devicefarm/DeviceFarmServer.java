@@ -184,7 +184,7 @@ public class DeviceFarmServer extends TestServer {
     private List<String> getAuxAppArns(Collection<Upload> auxUploads) {
         List<String> auxAppArns = Lists.newArrayList();
 
-        if (auxAppArns == null || auxAppArns.size() == 0) {
+        if (auxUploads == null || auxUploads.size() == 0) {
            return auxAppArns;
         }
 
