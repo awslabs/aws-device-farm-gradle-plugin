@@ -3,9 +3,9 @@ AWS Device Farm Gradle Plugin
 
 AWS Device Farm integration with Android Gradle Build system
 
-This plugin provides [AWS Device Farm] (http:// aws.amazon.com/device-farm) functionality from your Android gradle environment, allowing you to kick off tests on real Android phones and tablets hosted in the AWS Cloud.
+This plugin provides [AWS Device Farm] (http://aws.amazon.com/device-farm) functionality from your Android gradle environment, allowing you to kick off tests on real Android phones and tablets hosted in the AWS Cloud.
 
-For more information see [AWS Device Farm Developer Guide] (http:// docs.aws.amazon.com/devicefarm/latest/developerguide/welcome.html)
+For more information see [AWS Device Farm Developer Guide] (http://docs.aws.amazon.com/devicefarm/latest/developerguide/welcome.html)
 
 
 Usage
