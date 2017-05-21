@@ -1,23 +1,27 @@
-/*
- * Copyright 2015 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+//
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 package com.amazonaws.devicefarm;
 
 import com.amazonaws.devicefarm.extension.DeviceFarmExtension;
-import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
-import com.amazonaws.services.devicefarm.model.*;
+import com.amazonaws.services.devicefarm.AWSDeviceFarm;
+import com.amazonaws.services.devicefarm.model.DevicePool;
+import com.amazonaws.services.devicefarm.model.ListDevicePoolsRequest;
+import com.amazonaws.services.devicefarm.model.ListDevicePoolsResult;
+import com.amazonaws.services.devicefarm.model.ListProjectsRequest;
+import com.amazonaws.services.devicefarm.model.ListProjectsResult;
+import com.amazonaws.services.devicefarm.model.Project;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +32,16 @@ import java.util.List;
 public class DeviceFarmUtils {
 
     private final DeviceFarmExtension extension;
-    private final AWSDeviceFarmClient api;
+    private final AWSDeviceFarm api;
 
-    public DeviceFarmUtils(final AWSDeviceFarmClient api, final DeviceFarmExtension extension) {
+    public DeviceFarmUtils(final AWSDeviceFarm api, final DeviceFarmExtension extension) {
         this.extension = extension;
         this.api = api;
     }
 
     /**
      * Get all Device Farm projects.
+     *
      * @return A List of the Device Farm projects.
      */
     public List<Project> getProjects() {
@@ -52,6 +57,7 @@ public class DeviceFarmUtils {
 
     /**
      * Get Device Farm project by name.
+     *
      * @param projectName String name of the Device Farm project.
      * @return The Device Farm project.
      */
@@ -68,6 +74,7 @@ public class DeviceFarmUtils {
 
     /**
      * Get Device Farm device pools for a given Device Farm project.
+     *
      * @param project Device Farm Project.
      * @return A List of the Device Farm device pools.
      */
@@ -80,7 +87,8 @@ public class DeviceFarmUtils {
 
     /**
      * Get Device Farm device pool by Device Farm project and device pool name.
-     * @param project The Device Farm project.
+     *
+     * @param project        The Device Farm project.
      * @param devicePoolName String name of the device pool.
      * @return The Device Farm device pool.
      */
@@ -100,6 +108,7 @@ public class DeviceFarmUtils {
 
     /**
      * Get the Device Farm run URL from the Device Farm run ARN.
+     *
      * @param arn The Device Farm run ARN.
      * @return The Device Farm run URL.
      */
@@ -112,6 +121,7 @@ public class DeviceFarmUtils {
 
     /**
      * Get the Device Farm run ID from the Device Farm run ARN.
+     *
      * @param arn The Device Farm run ARN.
      * @return The Device Farm run ID.
      */
@@ -122,6 +132,7 @@ public class DeviceFarmUtils {
 
     /**
      * Get the Device Farm project ID from the Device Farm run ARN.
+     *
      * @param arn The Device Farm run ARN.
      * @return The Device Farm project ID.
      */
@@ -132,6 +143,7 @@ public class DeviceFarmUtils {
 
     /**
      * Split the run ARN into Device Farm run and project IDs.
+     *
      * @param arn The Device Farm run ARN.
      * @return An array containing the run and project IDs.
      */
