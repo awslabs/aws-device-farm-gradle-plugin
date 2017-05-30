@@ -1,31 +1,40 @@
-/*
- * Copyright 2015 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+//
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 package com.amazonaws.devicefarm;
 
 import com.amazonaws.devicefarm.extension.DeviceFarmExtension;
 import com.amazonaws.devicefarm.extension.TestPackageProvider;
+import com.amazonaws.services.devicefarm.AWSDeviceFarm;
 import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
-import com.amazonaws.services.devicefarm.model.*;
+import com.amazonaws.services.devicefarm.model.BillingMethod;
+import com.amazonaws.services.devicefarm.model.DevicePool;
+import com.amazonaws.services.devicefarm.model.Project;
+import com.amazonaws.services.devicefarm.model.ScheduleRunConfiguration;
+import com.amazonaws.services.devicefarm.model.ScheduleRunRequest;
+import com.amazonaws.services.devicefarm.model.ScheduleRunResult;
+import com.amazonaws.services.devicefarm.model.ScheduleRunTest;
+import com.amazonaws.services.devicefarm.model.Upload;
+import com.amazonaws.services.devicefarm.model.UploadType;
 import com.android.builder.testing.api.TestServer;
 import com.google.common.collect.Lists;
 import org.gradle.api.logging.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Sends a test run request to AWS Device Farm.
@@ -35,12 +44,12 @@ public class DeviceFarmServer extends TestServer {
 
     private final DeviceFarmExtension extension;
     private final Logger logger;
-    private final AWSDeviceFarmClient api;
+    private final AWSDeviceFarm api;
     private final DeviceFarmUploader uploader;
     private final DeviceFarmUtils utils;
 
     public DeviceFarmServer(final DeviceFarmExtension extension,
-                    final Logger logger, final AWSDeviceFarmClient deviceFarmClient) throws IOException {
+                            final Logger logger, final AWSDeviceFarmClient deviceFarmClient) throws IOException {
 
         this(extension, logger, deviceFarmClient,
                 new DeviceFarmUploader(deviceFarmClient, logger),
@@ -48,7 +57,7 @@ public class DeviceFarmServer extends TestServer {
     }
 
     public DeviceFarmServer(final DeviceFarmExtension extension,
-                            final Logger logger, final AWSDeviceFarmClient deviceFarmClient,
+                            final Logger logger, final AWSDeviceFarm deviceFarmClient,
                             final DeviceFarmUploader uploader,
                             final DeviceFarmUtils utils) throws IOException {
 
@@ -62,6 +71,7 @@ public class DeviceFarmServer extends TestServer {
 
     /**
      * Name of the gradle plugin.
+     *
      * @return devicefarm
      */
     @Override
@@ -71,9 +81,10 @@ public class DeviceFarmServer extends TestServer {
 
     /**
      * Upload and test the newly built apk.
+     *
      * @param variantName variant of the latest build. Ex: 'debug'
      * @param testPackage File object to the newly built APK which contains tests
-     * @param testedApk File object to the newly built application APK
+     * @param testedApk   File object to the newly built application APK
      */
     @Override
     public void uploadApks(final String variantName, final File testPackage, final File testedApk) {
@@ -91,7 +102,7 @@ public class DeviceFarmServer extends TestServer {
 
         final String extraDataArn = uploadExtraDataZip(project);
 
-        final ScheduleRunTest runTest= new ScheduleRunTest()
+        final ScheduleRunTest runTest = new ScheduleRunTest()
                 .withParameters(extension.getTest().getTestParameters())
                 .withType(extension.getTest().getTestType())
                 .withFilter(extension.getTest().getFilter())
@@ -102,7 +113,7 @@ public class DeviceFarmServer extends TestServer {
                 .withExtraDataPackageArn(extraDataArn)
                 .withLocale(extension.getDeviceState().getLocale().toString())
                 .withLocation(extension.getDeviceState().getLocation())
-                .withBillingMethod(extension.isMetered()?BillingMethod.METERED:BillingMethod.UNMETERED)
+                .withBillingMethod(extension.isMetered() ? BillingMethod.METERED : BillingMethod.UNMETERED)
                 .withRadios(extension.getDeviceState().getRadios());
 
         final ScheduleRunRequest request = new ScheduleRunRequest()
@@ -121,16 +132,17 @@ public class DeviceFarmServer extends TestServer {
 
     /**
      * If the tests requires it upload the test package and return the arn.
-     * @param project the Device Farm project
+     *
+     * @param project     the Device Farm project
      * @param testPackage the test package
      * @return test package arn, or null if test does not require a test package
      */
     private String uploadTestPackageIfNeeded(final Project project, final File testPackage) {
 
         String testArtifactsArn = null;
-        if(extension.getTest() instanceof TestPackageProvider) {
+        if (extension.getTest() instanceof TestPackageProvider) {
 
-            final TestPackageProvider testPackageProvider = (TestPackageProvider)extension.getTest();
+            final TestPackageProvider testPackageProvider = (TestPackageProvider) extension.getTest();
 
             final File testArtifacts = testPackageProvider.resolveTestPackage(testPackage);
 
@@ -168,7 +180,7 @@ public class DeviceFarmServer extends TestServer {
 
         String extraDataArn = null;
 
-        if(extraDataZip != null) {
+        if (extraDataZip != null) {
 
             extraDataArn = uploader.upload(
                     extraDataZip,
@@ -185,7 +197,7 @@ public class DeviceFarmServer extends TestServer {
         List<String> auxAppArns = Lists.newArrayList();
 
         if (auxUploads == null || auxUploads.size() == 0) {
-           return auxAppArns;
+            return auxAppArns;
         }
 
         for (Upload auxApp : auxUploads) {
@@ -197,6 +209,7 @@ public class DeviceFarmServer extends TestServer {
 
     /**
      * Verify the Device Farm extension is properly configured.
+     *
      * @return true if configuration is valid, false otherwise.
      */
     @Override
