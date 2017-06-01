@@ -75,6 +75,7 @@ public class DeviceFarmPluginTest {
 
         DeviceFarmExtension extension = new DeviceFarmExtension(gradleProject);
         extension.setProjectName("MyProject");
+        extension.setRunName("MyRun");
 
         DeviceFarmServer server = new DeviceFarmServer(extension, loggerMock, apiMock, uploaderMock, new DeviceFarmUtils(apiMock, extension));
 
@@ -110,7 +111,7 @@ public class DeviceFarmPluginTest {
             apiMock.scheduleRun(runRequest = withCapture());
             assertNotNull(runRequest);
             assertEquals(runRequest.getTest().getType(), TestType.INSTRUMENTATION.toString());
-
+            assertEquals(runRequest.getName(), "MyRun");
 
         }};
 

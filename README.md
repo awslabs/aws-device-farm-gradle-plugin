@@ -48,6 +48,8 @@ Building the plugin is optional.  The plugin is published through Maven Central.
         
         devicePool "My Device Pool Name" // optional: Defaults to "Top Devices"
         
+        runName "My Run" // optional: Defaults to "${appName}-${buildVariant}.apk (Gradle)"
+        
         useUnmeteredDevices() // optional if you wish to use your un-metered devices
         
     
