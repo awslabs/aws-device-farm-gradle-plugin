@@ -24,3 +24,6 @@ vagrant_ansible_inventory_*
 # Build
 */**/build/*
 
+gradle/
+gradlew
+gradlew.bat
