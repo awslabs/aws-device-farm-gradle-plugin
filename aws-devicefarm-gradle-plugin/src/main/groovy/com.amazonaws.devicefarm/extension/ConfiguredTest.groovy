@@ -23,6 +23,10 @@ abstract class ConfiguredTest {
 
     TestType testType
 
+    static final String APPIUM_VERSION_1_6_5 = "1.6.5"
+    static final String APPIUM_VERSION_1_6_3 = "1.6.3"
+    static final String APPIUM_VERSION_1_4_16 = "1.4.16"
+
     /**
      * Provide API ready test parameters
      * @return test parameter map
@@ -45,6 +49,19 @@ abstract class ConfiguredTest {
         }
 
         return null;
+    }
+
+    /**
+     * If this test has a appium Version return it.
+     * @return the filter, or null if not specified
+     */
+    String getAppiumVersion() {
+
+        if (this instanceof HasAppiumVersion) {
+            return ((HasAppiumVersion) this).getAppiumVersion();
+        }
+        
+        return APPIUM_VERSION_1_6_3;
     }
 
 
