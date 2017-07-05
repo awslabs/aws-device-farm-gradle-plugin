@@ -27,12 +27,13 @@ Building the plugin is optional.  The plugin is published through Maven Central.
     
         repositories {        
             mavenLocal()            
-            mavenCentral()            
+            mavenCentral()
+            jcenter()
         }
         
         dependencies {        
-            classpath 'com.android.tools.build:gradle:1.3.0'           
-            classpath 'com.amazonaws:aws-devicefarm-gradle-plugin:1.2'
+            classpath 'com.android.tools.build:gradle:2.3.3'
+            classpath 'com.amazonaws:aws-devicefarm-gradle-plugin:1.3'
         }        
     }
 ```
@@ -73,6 +74,14 @@ Building the plugin is optional.  The plugin is published through Maven Central.
             latitude 47.6204 // default
             longitude -122.3491 // default
         }
+
+        // optional block, video recording and performance monitoring default to 'on' state, maximum execution time defaluts to 60 minutes, all parameters optional
+        executionConfig {
+
+                    maxExecutionTime 60 // The maximum execution timeout per device in minute. Default is 60.
+                    videoRecording "on"
+                    performanceMonitoring "on"
+                }
      
     
         // Configure test type, if none default to instrumentation
@@ -137,15 +146,17 @@ Appium
 ------
 * [Appium JUnit] (http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-java-junit.html)
 * [Appium TestNG] (http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-java-testng.html)
+* [Appium Python] (http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-python.html)
 
-Device Farm provides support for Appium Java TestNG and JUnit for Android. 
+Device Farm provides support for Appium Java TestNG, JUnit and Python for Android.
 
-You can choose to ```useTestNG()``` or ```useJUnit()```
+You can choose to ```useTestNG()``` , ```useJUnit()``` or ```usePython()```
+
 JUnit is the default and does not need to be explicitly specified.
 ```
     appium {
         tests file("path to zip file") // required
-        useTestNG() // or useJUnit()
+        useTestNG() // or useJUnit() and usePython()
     }
 ```
 
@@ -254,7 +265,7 @@ Java SDK (Android Studio Project)
 Runtime (Include these in your build.gradle)
 --------------------------------------------
 
-* AWS SDK 1.10.15 or later.
+* AWS SDK 1.11.126 or later.
 * Android tools builder test api 0.5.2
 * Apache Commons Lang3 3.3.4
 
