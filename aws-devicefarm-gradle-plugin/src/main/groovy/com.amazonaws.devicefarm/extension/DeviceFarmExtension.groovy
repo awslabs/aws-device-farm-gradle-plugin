@@ -32,6 +32,12 @@ class DeviceFarmExtension {
     String devicePool = "Top Devices"
 
     /**
+     * [Optional] Name of run.
+     * Default: Name of the apk
+     */
+    String runName
+
+    /**
      * You must have a subscription to set this to false
      */
     boolean metered = true

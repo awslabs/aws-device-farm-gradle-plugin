@@ -61,7 +61,7 @@ abstract class ConfiguredTest {
             return ((HasAppiumVersion) this).getAppiumVersion();
         }
         
-        return APPIUM_VERSION_1_6_3;
+        return APPIUM_VERSION_1_6_5;
     }
 
 

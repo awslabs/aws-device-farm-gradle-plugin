@@ -141,7 +141,7 @@ public class DeviceFarmServer extends TestServer {
                 .withProjectArn(project.getArn())
                 .withTest(runTest)
                 .withExecutionConfiguration(exeConfiguration)
-                .withName(String.format("%s (Gradle)", testedApk.getName()));
+                .withName(String.format("%s (Gradle)", extension.getRunName() != null ? extension.getRunName() : testedApk.getName()));
 
         final ScheduleRunResult response = api.scheduleRun(request);
 

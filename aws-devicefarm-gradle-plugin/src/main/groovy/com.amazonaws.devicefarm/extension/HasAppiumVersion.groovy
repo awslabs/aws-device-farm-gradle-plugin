@@ -19,7 +19,7 @@ package com.amazonaws.devicefarm.extension
  */
 trait HasAppiumVersion {
 
-    String appiumVersion = APPIUM_VERSION_1_6_3
+    String appiumVersion = APPIUM_VERSION_1_6_5
 
     static final String APPIUM_VERSION_1_6_5 = "1.6.5"
     static final String APPIUM_VERSION_1_6_3 = "1.6.3"

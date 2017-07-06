@@ -21,7 +21,7 @@ Building the plugin is optional.  The plugin is published through Maven Central.
 
 ## Using the plugin:
 1. Add the plugin artifact to your dependency list in build.gradle.
-
+The version of the  ```Android plugin for gradle``` is supposed to match the version of the ```Gradle```. See [Android Plugin for Gradle Release Notes] (https://developer.android.com/studio/releases/gradle-plugin.html#updating-gradle) for details.
 ```
     buildscript {
     
@@ -50,6 +50,8 @@ Building the plugin is optional.  The plugin is published through Maven Central.
         devicePool "My Device Pool Name" // optional: Defaults to "Top Devices"
         
         useUnmeteredDevices() // optional if you wish to use your un-metered devices
+
+        runName "My run name" // optional: Defaults to be the name of the apk
         
     
         authentication {        
@@ -81,7 +83,7 @@ Building the plugin is optional.  The plugin is published through Maven Central.
                     maxExecutionTime 60 // The maximum execution timeout per device in minute. Default is 60.
                     videoRecording "on"
                     performanceMonitoring "on"
-                }
+        }
      
     
         // Configure test type, if none default to instrumentation
@@ -152,11 +154,14 @@ Device Farm provides support for Appium Java TestNG, JUnit and Python for Androi
 
 You can choose to ```useTestNG()``` , ```useJUnit()``` or ```usePython()```
 
-JUnit is the default and does not need to be explicitly specified.
+You can also choose the version of Appium used for the test. Select from  ```"1.6.5"``` , ```"1.6.3"``` or ```"1.4.16"```
+
+JUnit and version ```"1.6.5"``` are the default and do not need to be explicitly specified.
 ```
     appium {
         tests file("path to zip file") // required
         useTestNG() // or useJUnit() and usePython()
+        appiumVersion "1.6.5" // optional: appium version used for the test. or "1.4.16" or "1.6.3"
     }
 ```
 
