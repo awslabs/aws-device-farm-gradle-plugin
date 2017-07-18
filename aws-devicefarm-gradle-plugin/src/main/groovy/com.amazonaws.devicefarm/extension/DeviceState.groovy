@@ -35,7 +35,7 @@ class DeviceState {
 
     def locale = Locale.US
 
-    //These methods make the '=' optional when configuring the plugin
+    // These methods make the '=' optional when configuring the plugin
     void extraDataZipFile(File val) { extraDataZipFile = val }
 
     void auxiliaryApps(FileCollection val) { auxiliaryApps = val as List }

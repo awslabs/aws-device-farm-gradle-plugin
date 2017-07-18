@@ -21,7 +21,7 @@ Building the plugin is optional.  The plugin is published through Maven Central.
 
 ## Using the plugin:
 1. Add the plugin artifact to your dependency list in build.gradle.
-The version of the  ```Android plugin for gradle``` is supposed to match the version of the ```Gradle```. See [Android Plugin for Gradle Release Notes] (https://developer.android.com/studio/releases/gradle-plugin.html#updating-gradle) for details.
+The version of the  ```Android plugin for gradle``` should match the version of the ```Gradle```. See [Android Plugin for Gradle Release Notes] (https://developer.android.com/studio/releases/gradle-plugin.html#updating-gradle) for details.
 ```
     buildscript {
     
@@ -77,7 +77,7 @@ The version of the  ```Android plugin for gradle``` is supposed to match the ver
             longitude -122.3491 // default
         }
 
-        // optional block, video recording and performance monitoring default to 'on' state, maximum execution time defaluts to 60 minutes, all parameters optional
+        // optional block, video recording and performance monitoring default to 'on' state, maximum execution time defaults to 60 minutes, all parameters optional
         executionConfig {
 
                     maxExecutionTime 60 // The maximum execution timeout per device in minute. Default is 60.

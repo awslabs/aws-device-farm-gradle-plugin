@@ -25,7 +25,7 @@ class ExecutionConfiguration {
     def videoRecording = true
     def performanceMonitoring = true
 
-    //These methods make the '=' optional when configuring the plugin
+    // These methods make the '=' optional when configuring the plugin
     void maxExecutionTime(int i) { maxExecutionTime = i }
 
     void videoRecording(String onOff) { videoRecording = ConfigurationOnOff.valueOf(onOff).bool }

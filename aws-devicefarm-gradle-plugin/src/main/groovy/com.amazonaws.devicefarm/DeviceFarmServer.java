@@ -50,6 +50,20 @@ public class DeviceFarmServer extends TestServer {
     private final DeviceFarmUploader uploader;
     private final DeviceFarmUtils utils;
 
+
+    /**
+     * Check whether the input test type is Appium.
+     *
+     * @param testType
+     * @return true if it is an Appium test
+     */
+    private static boolean isAppiumTestType(final TestType testType) {
+        if (testType.equals(TestType.APPIUM_JAVA_JUNIT) || testType.equals(TestType.APPIUM_JAVA_TESTNG) || testType.equals(TestType.APPIUM_PYTHON)) {
+            return true;
+        }
+        return false;
+    }
+
     public DeviceFarmServer(final DeviceFarmExtension extension,
                             final Logger logger, final AWSDeviceFarmClient deviceFarmClient) throws IOException {
 
@@ -118,7 +132,7 @@ public class DeviceFarmServer extends TestServer {
             runTest.addParametersEntry("app_performance_monitoring", "false");
         }
 
-        if (extension.getTest().getTestType().equals(TestType.APPIUM_JAVA_JUNIT) || extension.getTest().getTestType().equals(TestType.APPIUM_JAVA_TESTNG) || extension.getTest().getTestType().equals(TestType.APPIUM_PYTHON)) {
+        if (isAppiumTestType(extension.getTest().getTestType())) {
             runTest.addParametersEntry("appium_version", extension.getTest().getAppiumVersion());
             logger.lifecycle(String.format("The Appium version used for the test: %s", extension.getTest().getAppiumVersion()));
         }

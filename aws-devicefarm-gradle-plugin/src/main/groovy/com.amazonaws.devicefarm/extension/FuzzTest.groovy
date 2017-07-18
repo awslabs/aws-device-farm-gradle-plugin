@@ -29,7 +29,7 @@ class FuzzTest extends ConfiguredTest {
     String eventThrottle = 50
     String randomizerSeed
 
-    //These methods make the '=' optional when configuring the plugin
+    // These methods make the '=' optional when configuring the plugin
     void eventCount(int val) { eventCount = val }
 
     void eventThrottle(int val) { eventThrottle = val }
