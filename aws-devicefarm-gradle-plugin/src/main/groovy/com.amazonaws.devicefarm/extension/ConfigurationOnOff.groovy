@@ -14,34 +14,17 @@
 //
 package com.amazonaws.devicefarm.extension
 
-import com.amazonaws.services.devicefarm.model.TestType
-
 /**
- * Built in Fuzz Test
+ * ON/Off states for configuration
  */
-class FuzzTest extends ConfiguredTest {
+enum ConfigurationOnOff {
 
-    {
-        testType = TestType.BUILTIN_FUZZ
+    on(true), off(false), ON(true), OFF(false)
+
+    boolean bool
+
+    ConfigurationOnOff(boolean b) {
+        this.bool = b;
     }
-
-    String eventCount = 6000
-    String eventThrottle = 50
-    String randomizerSeed
-
-    // These methods make the '=' optional when configuring the plugin
-    void eventCount(int val) { eventCount = val }
-
-    void eventThrottle(int val) { eventThrottle = val }
-
-    void randomizerSeed(int val) { randomizerSeed = val }
-
-
-    @Override
-    Map<String, String> getTestParameters() {
-
-        [event_count: eventCount, throttle: eventThrottle, seed: randomizerSeed]
-    }
-
 
 }

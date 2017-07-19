@@ -21,18 +21,19 @@ Building the plugin is optional.  The plugin is published through Maven Central.
 
 ## Using the plugin:
 1. Add the plugin artifact to your dependency list in build.gradle.
-
+The version of the  ```Android plugin for gradle``` should match the version of the ```Gradle```. See [Android Plugin for Gradle Release Notes] (https://developer.android.com/studio/releases/gradle-plugin.html#updating-gradle) for details.
 ```
     buildscript {
     
         repositories {        
             mavenLocal()            
-            mavenCentral()            
+            mavenCentral()
+            jcenter()
         }
         
         dependencies {        
-            classpath 'com.android.tools.build:gradle:1.3.0'           
-            classpath 'com.amazonaws:aws-devicefarm-gradle-plugin:1.2'
+            classpath 'com.android.tools.build:gradle:2.3.3'
+            classpath 'com.amazonaws:aws-devicefarm-gradle-plugin:1.3'
         }        
     }
 ```
@@ -49,6 +50,8 @@ Building the plugin is optional.  The plugin is published through Maven Central.
         devicePool "My Device Pool Name" // optional: Defaults to "Top Devices"
         
         useUnmeteredDevices() // optional if you wish to use your un-metered devices
+
+        runName "My run name" // optional: Defaults to be the name of the apk
         
     
         authentication {        
@@ -72,6 +75,14 @@ Building the plugin is optional.  The plugin is published through Maven Central.
             nfc "on"
             latitude 47.6204 // default
             longitude -122.3491 // default
+        }
+
+        // optional block, video recording and performance monitoring default to 'on' state, maximum execution time defaults to 60 minutes, all parameters optional
+        executionConfig {
+
+                    maxExecutionTime 60 // The maximum execution timeout per device in minute. Default is 60.
+                    videoRecording "on"
+                    performanceMonitoring "on"
         }
      
     
@@ -137,15 +148,20 @@ Appium
 ------
 * [Appium JUnit] (http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-java-junit.html)
 * [Appium TestNG] (http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-java-testng.html)
+* [Appium Python] (http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-python.html)
 
-Device Farm provides support for Appium Java TestNG and JUnit for Android. 
+Device Farm provides support for Appium Java TestNG, JUnit and Python for Android.
 
-You can choose to ```useTestNG()``` or ```useJUnit()```
-JUnit is the default and does not need to be explicitly specified.
+You can choose to ```useTestNG()``` , ```useJUnit()``` or ```usePython()```
+
+You can also choose the version of Appium used for the test. Select from  ```"1.6.5"``` , ```"1.6.3"``` or ```"1.4.16"```
+
+JUnit and version ```"1.6.5"``` are the default and do not need to be explicitly specified.
 ```
     appium {
         tests file("path to zip file") // required
-        useTestNG() // or useJUnit()
+        useTestNG() // or useJUnit() and usePython()
+        appiumVersion "1.6.5" // optional: appium version used for the test. or "1.4.16" or "1.6.3"
     }
 ```
 
@@ -254,7 +270,7 @@ Java SDK (Android Studio Project)
 Runtime (Include these in your build.gradle)
 --------------------------------------------
 
-* AWS SDK 1.10.15 or later.
+* AWS SDK 1.11.126 or later.
 * Android tools builder test api 0.5.2
 * Apache Commons Lang3 3.3.4
 

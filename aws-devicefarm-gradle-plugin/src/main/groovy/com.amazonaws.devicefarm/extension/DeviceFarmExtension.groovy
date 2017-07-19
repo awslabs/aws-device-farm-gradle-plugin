@@ -32,6 +32,12 @@ class DeviceFarmExtension {
     String devicePool = "Top Devices"
 
     /**
+     * [Optional] Name of run.
+     * Default: Name of the apk
+     */
+    String runName
+
+    /**
      * You must have a subscription to set this to false
      */
     boolean metered = true
@@ -65,6 +71,11 @@ class DeviceFarmExtension {
     DeviceState deviceState = new DeviceState()
 
     /**
+     * Device State configuration
+     */
+    ExecutionConfiguration executionConfiguration = new ExecutionConfiguration()
+
+    /**
      * The configured test to run, 'instrumentation' test is default
      * as it tests the bundled androidTest apk
      */
@@ -94,7 +105,11 @@ class DeviceFarmExtension {
     }
 
     void devicestate(final Closure closure) {
-        project.configure(deviceState, closure);
+        project.configure(deviceState, closure)
+    }
+
+    void executionConfig(final Closure closure) {
+        project.configure(executionConfiguration, closure)
     }
 
     void fuzz(final Closure closure) {

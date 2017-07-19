@@ -35,18 +35,18 @@ class DeviceState {
 
     def locale = Locale.US
 
-    //These methods make the '=' optional when configuring the plugin
+    // These methods make the '=' optional when configuring the plugin
     void extraDataZipFile(File val) { extraDataZipFile = val }
 
     void auxiliaryApps(FileCollection val) { auxiliaryApps = val as List }
 
-    void wifi(String onOff) { wifiOn = RadioOnOff.valueOf(onOff).bool }
+    void wifi(String onOff) { wifiOn = ConfigurationOnOff.valueOf(onOff).bool }
 
-    void bluetooth(String onOff) { bluetoothOn = RadioOnOff.valueOf(onOff).bool }
+    void bluetooth(String onOff) { bluetoothOn = ConfigurationOnOff.valueOf(onOff).bool }
 
-    void gps(String onOff) { gpsOn = RadioOnOff.valueOf(onOff).bool }
+    void gps(String onOff) { gpsOn = ConfigurationOnOff.valueOf(onOff).bool }
 
-    void nfc(String onOff) { nfcOn = RadioOnOff.valueOf(onOff).bool }
+    void nfc(String onOff) { nfcOn = ConfigurationOnOff.valueOf(onOff).bool }
 
     void latitude(double d) { latitude = d }
 

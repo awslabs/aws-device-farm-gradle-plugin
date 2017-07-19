@@ -14,34 +14,34 @@
 //
 package com.amazonaws.devicefarm.extension
 
-import com.amazonaws.services.devicefarm.model.TestType
+import com.amazonaws.services.devicefarm.model.ExecutionConfiguration;
 
 /**
- * Built in Fuzz Test
+ * Execution Configuration parameters
  */
-class FuzzTest extends ConfiguredTest {
+class ExecutionConfiguration {
 
-    {
-        testType = TestType.BUILTIN_FUZZ
-    }
-
-    String eventCount = 6000
-    String eventThrottle = 50
-    String randomizerSeed
+    def maxExecutionTime = 60
+    def videoRecording = true
+    def performanceMonitoring = true
 
     // These methods make the '=' optional when configuring the plugin
-    void eventCount(int val) { eventCount = val }
+    void maxExecutionTime(int i) { maxExecutionTime = i }
 
-    void eventThrottle(int val) { eventThrottle = val }
+    void videoRecording(String onOff) { videoRecording = ConfigurationOnOff.valueOf(onOff).bool }
 
-    void randomizerSeed(int val) { randomizerSeed = val }
+    void performanceMonitoring(String onOff) { performanceMonitoring = ConfigurationOnOff.valueOf(onOff).bool }
 
-
-    @Override
-    Map<String, String> getTestParameters() {
-
-        [event_count: eventCount, throttle: eventThrottle, seed: randomizerSeed]
+    int getMaxExecutionTime() {
+        maxExecutionTime
     }
 
+    boolean getVideoRecording() {
+        videoRecording
+    }
+
+    boolean getPerformanceMonitoring() {
+        performanceMonitoring
+    }
 
 }

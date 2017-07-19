@@ -27,6 +27,8 @@ import com.amazonaws.services.devicefarm.model.ScheduleRunResult;
 import com.amazonaws.services.devicefarm.model.ScheduleRunTest;
 import com.amazonaws.services.devicefarm.model.Upload;
 import com.amazonaws.services.devicefarm.model.UploadType;
+import com.amazonaws.services.devicefarm.model.ExecutionConfiguration;
+import com.amazonaws.services.devicefarm.model.TestType;
 import com.android.builder.testing.api.TestServer;
 import com.google.common.collect.Lists;
 import org.gradle.api.logging.Logger;
@@ -47,6 +49,20 @@ public class DeviceFarmServer extends TestServer {
     private final AWSDeviceFarm api;
     private final DeviceFarmUploader uploader;
     private final DeviceFarmUtils utils;
+
+
+    /**
+     * Check whether the input test type is Appium.
+     *
+     * @param testType
+     * @return true if it is an Appium test
+     */
+    private static boolean isAppiumTestType(final TestType testType) {
+        if (testType.equals(TestType.APPIUM_JAVA_JUNIT) || testType.equals(TestType.APPIUM_JAVA_TESTNG) || testType.equals(TestType.APPIUM_PYTHON)) {
+            return true;
+        }
+        return false;
+    }
 
     public DeviceFarmServer(final DeviceFarmExtension extension,
                             final Logger logger, final AWSDeviceFarmClient deviceFarmClient) throws IOException {
@@ -108,6 +124,19 @@ public class DeviceFarmServer extends TestServer {
                 .withFilter(extension.getTest().getFilter())
                 .withTestPackageArn(uploadTestPackageIfNeeded(project, testPackage));
 
+        if (!extension.getExecutionConfiguration().getVideoRecording()) {
+            runTest.addParametersEntry("video_recording", "false");
+        }
+
+        if (!extension.getExecutionConfiguration().getPerformanceMonitoring()) {
+            runTest.addParametersEntry("app_performance_monitoring", "false");
+        }
+
+        if (isAppiumTestType(extension.getTest().getTestType())) {
+            runTest.addParametersEntry("appium_version", extension.getTest().getAppiumVersion());
+            logger.lifecycle(String.format("The Appium version used for the test: %s", extension.getTest().getAppiumVersion()));
+        }
+
         final ScheduleRunConfiguration configuration = new ScheduleRunConfiguration()
                 .withAuxiliaryApps(getAuxAppArns(auxApps))
                 .withExtraDataPackageArn(extraDataArn)
@@ -116,13 +145,17 @@ public class DeviceFarmServer extends TestServer {
                 .withBillingMethod(extension.isMetered() ? BillingMethod.METERED : BillingMethod.UNMETERED)
                 .withRadios(extension.getDeviceState().getRadios());
 
+        final ExecutionConfiguration exeConfiguration = new ExecutionConfiguration()
+                .withJobTimeoutMinutes(extension.getExecutionConfiguration().getMaxExecutionTime());
+
         final ScheduleRunRequest request = new ScheduleRunRequest()
                 .withAppArn(appArn)
                 .withConfiguration(configuration)
                 .withDevicePoolArn(devicePool.getArn())
                 .withProjectArn(project.getArn())
                 .withTest(runTest)
-                .withName(String.format("%s (Gradle)", testedApk.getName()));
+                .withExecutionConfiguration(exeConfiguration)
+                .withName(String.format("%s (Gradle)", extension.getRunName() != null ? extension.getRunName() : testedApk.getName()));
 
         final ScheduleRunResult response = api.scheduleRun(request);
 

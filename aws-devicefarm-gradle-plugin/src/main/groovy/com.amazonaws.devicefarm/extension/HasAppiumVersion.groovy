@@ -15,16 +15,15 @@
 package com.amazonaws.devicefarm.extension
 
 /**
- * ON/Off states for radio configuration
+ * Marks tests Version for Appium Test
  */
-enum RadioOnOff {
+trait HasAppiumVersion {
 
-    on(true), off(false), ON(true), OFF(false)
+    String appiumVersion = APPIUM_VERSION_1_6_5
 
-    boolean bool
+    static final String APPIUM_VERSION_1_6_5 = "1.6.5"
+    static final String APPIUM_VERSION_1_6_3 = "1.6.3"
+    static final String APPIUM_VERSION_1_4_16 = "1.4.16"
 
-    RadioOnOff(boolean b) {
-        this.bool = b;
-    }
-
+    void appiumVersion(String val) { appiumVersion = val }
 }
