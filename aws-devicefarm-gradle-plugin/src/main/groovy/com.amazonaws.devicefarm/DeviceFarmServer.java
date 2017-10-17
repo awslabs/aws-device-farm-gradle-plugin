@@ -88,15 +88,14 @@ public class DeviceFarmServer extends TestServer {
      */
     @Override
     public void uploadApks(final String variantName, final File testPackage, final File testedApk) {
-
         final Project project = utils.findProjectByName(extension.getProjectName());
         logger.lifecycle(String.format("Using Project \"%s\", \"%s\"", project.getName(), project.getArn()));
 
         final DevicePool devicePool = utils.findDevicePoolByName(project, extension.getDevicePool());
         logger.lifecycle(String.format("Using Device Pool \"%s\", \"%s\"", devicePool.getName(), devicePool.getArn()));
 
-        final String appArn = uploader.upload(testedApk, project, UploadType.ANDROID_APP).getArn();
-        logger.lifecycle(String.format("Will test app in  \"%s\", \"%s\"", testedApk.getName(), appArn));
+        final String appArn = uploader.upload(testedApk == null ? testPackage : testedApk, project, UploadType.ANDROID_APP).getArn();
+        logger.lifecycle(String.format("Will test app in  \"%s\", \"%s\"", testedApk == null ? testPackage.getName() : testedApk.getName(), appArn));
 
         final Collection<Upload> auxApps = uploadAuxApps(project);
 
@@ -122,7 +121,7 @@ public class DeviceFarmServer extends TestServer {
                 .withDevicePoolArn(devicePool.getArn())
                 .withProjectArn(project.getArn())
                 .withTest(runTest)
-                .withName(String.format("%s (Gradle)", testedApk.getName()));
+                .withName(String.format("%s (Gradle)", testedApk == null ? testPackage.getName() : testedApk.getName()));
 
         final ScheduleRunResult response = api.scheduleRun(request);
 
