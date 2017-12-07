@@ -1,29 +1,6 @@
-*.class
-# Package Files #
-*.jar
-*.war
-*.ear
-work/*
-target/*
-.settings/*
-.classpath
-.project
+# gradle
 .gradle
 
-# Vagrant
-.vagrant
-vagrant_ansible_inventory_*
-
-# IntelliJ
+# intellij
 .idea
 *.iml
-
-# OS X
-.DS_Store
-
-# Build
-*/**/build/*
-
-gradle/
-gradlew
-gradlew.bat
