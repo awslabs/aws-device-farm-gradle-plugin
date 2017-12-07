@@ -20,6 +20,7 @@ import com.amazonaws.services.devicefarm.AWSDeviceFarm;
 import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
 import com.amazonaws.services.devicefarm.model.BillingMethod;
 import com.amazonaws.services.devicefarm.model.DevicePool;
+import com.amazonaws.services.devicefarm.model.ExecutionConfiguration;
 import com.amazonaws.services.devicefarm.model.Project;
 import com.amazonaws.services.devicefarm.model.ScheduleRunConfiguration;
 import com.amazonaws.services.devicefarm.model.ScheduleRunRequest;
@@ -41,6 +42,9 @@ import java.util.List;
  * The url to check for results will be printed to console.
  */
 public class DeviceFarmServer extends TestServer {
+
+    private static final String RUNPARAM_VIDEO_RECORDING = "video_recording";
+    private static final String RUNPARAM_APP_PERF_MONITORING = "app_performance_monitoring";
 
     private final DeviceFarmExtension extension;
     private final Logger logger;
@@ -107,6 +111,12 @@ public class DeviceFarmServer extends TestServer {
                 .withFilter(extension.getTest().getFilter())
                 .withTestPackageArn(uploadTestPackageIfNeeded(project, testPackage));
 
+        runTest.addParametersEntry(RUNPARAM_VIDEO_RECORDING, Boolean.toString(extension.getVideoRecording()));
+        runTest.addParametersEntry(RUNPARAM_APP_PERF_MONITORING, Boolean.toString(extension.getPerformanceMonitoring()));
+
+        final ExecutionConfiguration executionConfiguration = new ExecutionConfiguration()
+                .withJobTimeoutMinutes(extension.getExecutionTimeoutMinutes());
+
         final ScheduleRunConfiguration configuration = new ScheduleRunConfiguration()
                 .withAuxiliaryApps(getAuxAppArns(auxApps))
                 .withExtraDataPackageArn(extraDataArn)
@@ -121,6 +131,7 @@ public class DeviceFarmServer extends TestServer {
                 .withDevicePoolArn(devicePool.getArn())
                 .withProjectArn(project.getArn())
                 .withTest(runTest)
+                .withExecutionConfiguration(executionConfiguration)
                 .withName(String.format("%s (Gradle)", testedApk == null ? testPackage.getName() : testedApk.getName()));
 
         final ScheduleRunResult response = api.scheduleRun(request);
