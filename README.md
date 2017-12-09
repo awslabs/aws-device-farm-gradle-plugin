@@ -233,7 +233,7 @@ Device Farm provides support for Instrumentation (JUnit, Espresso, Robotium, or 
 
 When running an instrumentation test in gradle the apk generated from your androidTest directory will be used as the source of your tests.
 
-```
+```gradle
 instrumentation { 
     filter "test filter per developer docs" // Optional
 }
@@ -243,7 +243,7 @@ instrumentation {
 --------------
 
 Upload your app as well as your UI Automator based tests packaged in a jar file
-```
+```gradle
 uiautomator {
     tests file("path to uiautomator jar file") // Required
     filter "test filter per developer docs" // Optional
@@ -271,7 +271,7 @@ As Device Farm supports additional test types the plugin must be extended to ena
   1. If the test type requires a test artifact package to be uploaded in addition to the app then make sure the new class extends the TestPackageProvider trait.
   2. If the test type supports the 'filter' parameter extend the HasFilter trait.
 3. Modify DeviceFarmExtension to add a method for the new test type, like so:
-```java
+```groovy
 void mynewtesttype(final Closure closure) {
     NewTestType newTest = new NewTestType()
     project.configure newTest, closure
