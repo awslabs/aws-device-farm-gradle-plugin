@@ -10,24 +10,22 @@ For more information see the [AWS Device Farm Developer Guide](http://docs.aws.a
 Usage
 =====
 
-1. Add the plugin artifact to your dependency list in `build.gradle`.
+1. Add the Device Farm plugin artifact. Paste the following into your top-level `build.gradle`. 
 
 ```gradle
 buildscript {
 
     repositories {        
-        mavenLocal()            
         mavenCentral()            
     }
     
     dependencies {        
-        classpath 'com.android.tools.build:gradle:1.3.0'
         classpath 'com.amazonaws:aws-devicefarm-gradle-plugin:1.3'
     }        
 }
 ```
 
-2. Configure the plugin in your module’s `build.gradle` file. 
+2. Configure the Device Farm plugin in your module’s `build.gradle` file. This is usually `app/build.gradle`.  
 
 ### Minimal configuration
 
@@ -79,7 +77,7 @@ devicefarm {
     // Optional. Set to "off" if you want to disable device performance monitoring during a run. Default is "on"
     performanceMonitoring "on"
     
-    // Optional. Add this if you have a subscription and want to use your unmetered devices
+    // Optional. Add this if you have a subscription and want to use your unmetered slots
     useUnmeteredDevices()
     
     // Required. You must specify either accessKey and secretKey OR roleArn. roleArn takes precedence. 
@@ -279,22 +277,3 @@ void mynewtesttype(final Closure closure) {
 }        
 ```
 * This will enable the configuration of the new test type within the devicefarm plugin.
-
-Build Dependencies
-------------------
-
-### Java SDK (Android Studio Project)
-
-* Java 7 or higher
-
-### Runtime (Include these in your `build.gradle`)
-
-* AWS SDK 1.11.240 or later
-* Android tools builder test api 0.5.2
-* Apache Commons Lang3 3.3.4
-
-### Unit Tests (Include these in your `build.gradle`)
-
-* Testng 6.8.8
-* Jmockit 1.19
-* Android gradle tools 3.0.0 
