@@ -38,7 +38,7 @@ This will do the following:
 * Run your instrumentation tests under `androidTest`
 
 ```gradle
-apply plugin 'devicefarm'
+apply plugin: 'devicefarm'
 
 devicefarm {
 
