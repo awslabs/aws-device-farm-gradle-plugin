@@ -55,6 +55,21 @@ class DeviceFarmExtension {
     String userAgent = "AWS Device Farm - Gradle %s"
 
     /**
+     * Execution timeout in minutes
+     */
+    int executionTimeoutMinutes = 150
+
+    /**
+     * Save recorded video output
+     */
+    boolean videoRecording = true
+
+    /**
+     * Save performance monitoring
+     */
+    boolean performanceMonitoring = true
+
+    /**
      * Authentication credentials
      */
     Authentication authentication = new Authentication();
@@ -79,6 +94,18 @@ class DeviceFarmExtension {
                 authentication.valid &&
                 test != null && test.valid
     }
+
+    void executionTimeoutMinutes(int i) { executionTimeoutMinutes = i }
+
+    void videoRecording(String onOff) { videoRecording = OnOffConfiguration.valueOf(onOff).bool }
+
+    void performanceMonitoring(String onOff) { performanceMonitoring = OnOffConfiguration.valueOf(onOff).bool }
+
+    int getExecutionTimeoutMinutes() { executionTimeoutMinutes }
+
+    boolean getVideoRecording() { videoRecording }
+
+    boolean getPerformanceMonitoring() { performanceMonitoring }
 
     void useMeteredDevices() {
         metered = true

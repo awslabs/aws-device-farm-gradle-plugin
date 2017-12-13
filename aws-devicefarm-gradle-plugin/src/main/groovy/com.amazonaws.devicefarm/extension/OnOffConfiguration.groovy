@@ -14,17 +14,13 @@
 //
 package com.amazonaws.devicefarm.extension
 
-/**
- * ON/Off states for radio configuration
- */
-enum RadioOnOff {
+enum OnOffConfiguration {
 
     on(true), off(false), ON(true), OFF(false)
 
     boolean bool
 
-    RadioOnOff(boolean b) {
-        this.bool = b;
+    OnOffConfiguration(boolean b) {
+        this.bool = b
     }
-
 }
