@@ -4,6 +4,12 @@ CHANGELOG
 This CHANGELOG.md file is meant to be a human-readable summary of the changes in each
 tagged version. There should be one entry for each tagged release of the plugin.
 
+### 1.3 (2017-12-15)
+* Add configurable performance parameters
+    * executionTimeoutMinutes
+    * videoRecording
+    * performanceMonitoring
+
 ### 1.2 (2015-12-21) [michael-b-willingham]
 * Backwards compatibility with java 7
 * Fix auxiliary apps ‘cannot cast object’ error.
