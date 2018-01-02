@@ -75,7 +75,7 @@ public class TestResultJUnitXMLReporter
                 if (parentDirectory.exists()) {
                     String xmlFilePath = new File(destination).getAbsoluteFile().getAbsolutePath();
                     logger.info("Writing File " + xmlFilePath);
-                    String resultXmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+                    String resultXmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
                     resultXmlStr += buildResultsString();
 
                     logger.debug("Result XML in File: " + xmlFilePath);
@@ -99,7 +99,7 @@ public class TestResultJUnitXMLReporter
             suites = getSuites(getJobs(this.run).get(0));
         }
         catch (Exception e) {
-            logger.info(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return "";
         }
         String resultStr = "";

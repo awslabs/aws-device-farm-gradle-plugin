@@ -31,12 +31,12 @@ public class JUnitSuite
         String str = "<testsuite errors=\"" + new Integer(this.errors).toString()
             + "\" failures=\"" + new Integer(this.failures).toString()
             + "\" name=\"" + this.name
-            + "\" tests=\"" + new Integer(this.tests.size()).toString() + "\">";
+            + "\" tests=\"" + new Integer(this.tests.size()).toString() + "\">\n";
         for (int testIndex = 0; testIndex < this.tests.size(); testIndex++) {
             JUnitTest test = this.tests.get(testIndex);
             str += test.toString();
         }
-        str += "</testsuite>";
+        str += "</testsuite>\n";
         return str;
     }
 }

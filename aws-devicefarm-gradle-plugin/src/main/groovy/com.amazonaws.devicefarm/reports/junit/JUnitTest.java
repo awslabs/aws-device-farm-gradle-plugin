@@ -83,21 +83,24 @@ public class JUnitTest
     @Override
     public String toString()
     {
-        long time = this.stopped.getTime() - this.started.getTime();
+        Long time = null;
+        if (this.stopped != null && this.started != null) {
+            time = new Long(this.stopped.getTime() - this.started.getTime());
+        }
 
-        String str = "<testcase classname=\"" + this.classname + "\" name=\"" + this.name + "\" time=\"" + new Long(time).toString() + "\">";
+        String str = "<testcase classname=\"" + this.classname + "\" name=\"" + this.name + "\"" + (time != null ? " time=\"" + time.toString() + "\"" : "") + ">\n";
         switch (state) {
             case SKIPPED:
-                str += "<skipped />";
+                str += "<skipped />\n";
                 break;
             case FAILED:
-                str += "<failure message=\"" + this.failureMessage + "\"/>";
+                str += "<failure message=\"" + this.failureMessage + "\"/>\n";
                 break;
             case SUCCESS:
                 break;
         };
 
-        str += "</testcase>";
+        str += "</testcase>\n";
         return str;
     }
 }
