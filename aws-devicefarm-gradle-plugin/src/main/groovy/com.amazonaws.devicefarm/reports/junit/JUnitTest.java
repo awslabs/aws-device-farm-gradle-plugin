@@ -2,6 +2,7 @@ package com.amazonaws.devicefarm.reports.junit;
 
 import java.util.Date;
 import com.amazonaws.services.devicefarm.model.Test;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 public class JUnitTest
 {
@@ -94,7 +95,7 @@ public class JUnitTest
                 str += "<skipped />\n";
                 break;
             case FAILED:
-                str += "<failure message=\"" + this.failureMessage + "\"/>\n";
+                str += "<failure message=\"" + StringEscapeUtils.escapeXml10(this.failureMessage) + "\"/>\n";
                 break;
             case SUCCESS:
                 break;
