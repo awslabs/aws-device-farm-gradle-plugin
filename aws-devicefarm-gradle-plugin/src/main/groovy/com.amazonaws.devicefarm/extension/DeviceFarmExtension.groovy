@@ -20,6 +20,10 @@ class DeviceFarmExtension {
 
     private final Project project
 
+    public enum OutputType {
+      JUnit
+    }
+
     /**
      * [Required] Name of Device Farm project which contains this application.
      */
@@ -41,6 +45,24 @@ class DeviceFarmExtension {
      * null == production per AWS SDK Client
      */
     String endpointOverride
+
+    /**
+     * [Optional] Wait for DeviceFarm to finish running the tests and consume results
+     * Default: False
+     */
+    boolean wait = false
+
+    /**
+     * [Optional] Produce output for Test Run results in format
+     * Default: JUnit
+     */
+    OutputType outputType = DeviceFarmExtension.OutputType.JUnit
+      
+    /**
+     * [Optional] Destination File to store test suite results
+     * Default: "build/test-results/results.xml"
+     */
+    String testsDestination = "build/test-results/results.xml"
 
     /**
      * Console url template
@@ -115,6 +137,29 @@ class DeviceFarmExtension {
         metered = false
     }
 
+    void useWait() {
+        wait = true;
+    }
+
+    void uploadOnly() {
+        wait = false;
+    }
+
+    void useOutput(String output) {
+        switch(output) {
+          case "JUnit":
+            outputType = DeviceFarmExtension.OutputType.JUnit;
+            break;
+          default: 
+            outputType = DeviceFarmExtension.OutputType.JUnit;
+            break;
+        }
+    }
+
+    void setTestsDestination(String destination) {
+        testsDestination = destination
+    }
+  
     void authentication(Closure closure) {
         project.configure(authentication, closure)
 
@@ -160,5 +205,5 @@ class DeviceFarmExtension {
         test = appExplorerTest
 
     }
-
 }
+
