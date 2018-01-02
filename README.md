@@ -79,7 +79,19 @@ devicefarm {
     
     // Optional. Add this if you have a subscription and want to use your unmetered slots
     useUnmeteredDevices()
-    
+
+    // optional if you want to wait for ADF build results
+    useWait()
+
+    // Only upload to ADF and run this does not wait for ADF test results to come back
+    uploadOnly()
+
+    // optional if you want to export ADF build results to a machine readable format default is JUnit XML
+    useOutput("JUnit") 
+
+    // optional relative or absolute path to directory storing ADF Test Run results
+    setTestsDestination("build/tests/adf-results")
+
     // Required. You must specify either accessKey and secretKey OR roleArn. roleArn takes precedence. 
     authentication {
         accessKey "aws-iam-user-accesskey"
@@ -125,6 +137,8 @@ devicefarm {
 
 3. Run your configured test on Device Farm with the `devicefarmUpload` task. ( `./gradlew devicefarmUpload`)
 4. The build output will print out a link to the AWS Device Farm console where you can monitor your test execution.
+5. If you choose to run the plugin with `useWait()` the deviceFarmUpload task will wait for the ADF results to return
+   and output them into a directory under `build/test-results/adf-tests` by default as JUnit XML.
 
 ## Generating a proper IAM user:
 
