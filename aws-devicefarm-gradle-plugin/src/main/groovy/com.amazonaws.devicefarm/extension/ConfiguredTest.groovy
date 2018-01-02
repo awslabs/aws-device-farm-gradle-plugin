@@ -19,7 +19,7 @@ import com.amazonaws.services.devicefarm.model.TestType
 /**
  * Any configured test types must implement
  */
-abstract class ConfiguredTest {
+abstract class ConfiguredTest implements TestPackageProvider {
 
     TestType testType
 
