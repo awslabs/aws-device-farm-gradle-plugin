@@ -59,10 +59,10 @@ class DeviceFarmExtension {
     OutputType outputType = DeviceFarmExtension.OutputType.JUnit
       
     /**
-     * [Optional] Destination File to store test suite results
-     * Default: "build/test-results/results.xml"
+     * [Optional] Destination directory to store test suite results
+     * Default: "build/test-results/adf-tests"
      */
-    String testsDestination = "build/test-results/results.xml"
+    String testsDestination = "build/test-results/adf-tests"
 
     /**
      * Console url template

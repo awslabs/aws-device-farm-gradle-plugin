@@ -24,6 +24,10 @@ public class JUnitSuite
     public void setFailures(int failures) {
         this.failures = failures;
     }
+
+    public String getClassName() {
+        return this.name;
+    }
     
     @Override
     public String toString()

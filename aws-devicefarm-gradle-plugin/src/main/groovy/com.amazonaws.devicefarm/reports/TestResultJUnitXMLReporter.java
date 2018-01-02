@@ -57,59 +57,54 @@ public class TestResultJUnitXMLReporter
         return jobs;
     }
     
-    public void writeResults(String destination) throws Exception{
+    public void writeResults(String destination) throws Exception {
 
-        if (destination != null) {
-            logger.info("Found JUnitXMLReporter Destination Path: " + destination);
+        List<Suite> suites = getSuites(getJobs(this.run).get(0));
+        ArrayList<JUnitSuite> junitSuites = new ArrayList<JUnitSuite>();
 
-            File parentDirectory = new File(destination).getParentFile().getAbsoluteFile();
-            logger.debug("Resolving to: " + parentDirectory.getAbsolutePath());
-            
-            try {
-
-                if (!parentDirectory.exists()) {
-                    logger.info("Did not exist, creating new directory: " + parentDirectory.getAbsolutePath());
-                    parentDirectory.mkdirs();
-                }
-                
-                if (parentDirectory.exists()) {
-                    String xmlFilePath = new File(destination).getAbsoluteFile().getAbsolutePath();
-                    logger.info("Writing File " + xmlFilePath);
-                    String resultXmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-                    resultXmlStr += buildResultsString();
-
-                    logger.debug("Result XML in File: " + xmlFilePath);
-                    logger.debug(resultXmlStr);
-                
-                    PrintWriter writer = new PrintWriter(xmlFilePath);
-                    writer.write(resultXmlStr);
-                    writer.close();
-                }
-            }
-            catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-        // NO-OP if destination is null
-    }
-    
-    public String buildResultsString() {
-        List<Suite> suites;
-        try {
-            suites = getSuites(getJobs(this.run).get(0));
-        }
-        catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return "";
-        }
-        String resultStr = "";
         for (int suiteIndex = 0; suiteIndex < suites.size(); suiteIndex++) {
-            resultStr += buildTestSuiteString(suites.get(suiteIndex));
+            junitSuites.add(buildTestSuite(suites.get(suiteIndex)));
         }
-        return resultStr;
+
+        for (int junitSuiteIndex = 0; junitSuiteIndex < junitSuites.size(); junitSuiteIndex++) {
+            JUnitSuite suite = junitSuites.get(junitSuiteIndex);
+
+            if (destination != null) {
+                logger.info("Found JUnitXMLReporter Destination Path: " + destination);
+
+                File testsDirectory = new File(destination).getAbsoluteFile();
+                logger.debug("Resolving to: " + testsDirectory.getAbsolutePath());
+            
+                try {
+                
+                    if (!testsDirectory.exists()) {
+                        logger.info("Did not exist, creating new directory: " + testsDirectory.getAbsolutePath());
+                        testsDirectory.mkdirs();
+                    }
+                
+                    if (testsDirectory.exists()) {
+                        
+                        String xmlFilePath = new File(destination + File.separator + "TEST-" + suite.getClassName() + ".xml").getAbsoluteFile().getAbsolutePath();
+                        logger.info("Writing File " + xmlFilePath);
+                        String resultXmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                            + suite.toString();
+
+                        logger.debug("Result XML in File: " + xmlFilePath);
+                        logger.debug(resultXmlStr);
+                
+                        PrintWriter writer = new PrintWriter(xmlFilePath);
+                        writer.write(resultXmlStr);
+                        writer.close();
+                    }
+                }
+                catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
     }
-    
-    public String buildTestSuiteString(Suite suite) {
+        
+    public JUnitSuite buildTestSuite(Suite suite) {
         JUnitSuite junitSuite = new JUnitSuite(suite.getName());
         ArrayList<JUnitTest> junitTests = new ArrayList<JUnitTest>();
         
@@ -120,7 +115,7 @@ public class TestResultJUnitXMLReporter
         }
         catch (Exception e) {
             logger.error(e.getMessage(), e);
-            return "";
+            return null;
         }
 
         for (int testIndex = 0; testIndex < tests.size(); testIndex++) {
@@ -131,7 +126,7 @@ public class TestResultJUnitXMLReporter
         junitSuite.setErrors(counters.getErrored());
         junitSuite.setFailures(counters.getFailed());
          
-        return junitSuite.toString();
+        return junitSuite;
     }
     
     public List<Suite> getSuites(Job job) throws Exception
