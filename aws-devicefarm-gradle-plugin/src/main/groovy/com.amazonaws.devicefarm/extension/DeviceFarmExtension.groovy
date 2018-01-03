@@ -137,14 +137,24 @@ class DeviceFarmExtension {
         metered = false
     }
 
+    /**
+     * Tell the plugin to wait for the Run to reach COMPLETE state before finishing this gradle task
+     */
     void useWait() {
         wait = true;
     }
 
+    /**
+     * Don't wait for the Run to finish only upload the packages and kick off a Run
+     */
     void uploadOnly() {
         wait = false;
     }
 
+    /**
+     * If we are waiting for the build to finish we will be harnessing the results of the Run as well. Select your
+     * output type using this method. Currently only supports "JUnit" for JUnit XML Export
+     */
     void useOutput(String output) {
         switch(output) {
           case "JUnit":
@@ -156,6 +166,9 @@ class DeviceFarmExtension {
         }
     }
 
+    /**
+     * Set an absolute or relative path where you wish to create the test output results. 
+     */
     void setTestsDestination(String destination) {
         testsDestination = destination
     }

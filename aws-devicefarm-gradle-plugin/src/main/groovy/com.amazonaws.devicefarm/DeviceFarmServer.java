@@ -144,7 +144,13 @@ public class DeviceFarmServer extends TestServer {
         if (extension.isWait()) {
             DeviceFarmResultPoller poller = new DeviceFarmResultPoller(extension, logger, api, utils);
             try {
-                Run completedRun = poller.pollTestRunForArn(response.getRun().getArn());
+                Run completedRun = poller.pollForRunCompletedStatus(response.getRun().getArn());
+
+                // Run did not complete correctly skip don't attempt to write output
+                if (completedRun == null) {
+                    return;
+                }
+
                 switch(extension.getOutputType()) {
                 case JUnit:
                     TestResultJUnitXMLReporter reporter = new TestResultJUnitXMLReporter(completedRun, extension, logger, api, utils);

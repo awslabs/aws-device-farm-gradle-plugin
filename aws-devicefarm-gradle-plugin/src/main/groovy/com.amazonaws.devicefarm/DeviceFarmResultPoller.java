@@ -39,7 +39,8 @@ public class DeviceFarmResultPoller {
     private Logger logger;
     private AWSDeviceFarm api;
     private DeviceFarmUtils utils;
-    private int MAX_TIMEOUT = 30000;
+    private final int MAX_TIMEOUT = 3000000;
+    private final int SLEEP_DURATION = 2000;
     
     public DeviceFarmResultPoller(DeviceFarmExtension extension,
                                   Logger logger,
@@ -51,14 +52,21 @@ public class DeviceFarmResultPoller {
         this.utils = utils;
     }
 
-    public Run pollTestRunForArn(String arn) throws Exception {
+    public Run pollForRunCompletedStatus(String arn) throws Exception {
         logger.info("Monitoring Run from Arn: " + arn);
         String lastStatus = "";
-        while(true) {
+        int currentWait = 0;
+        
+        while(MAX_TIMEOUT > currentWait) {
+            currentWait += SLEEP_DURATION;
             Run run = api.getRun(new GetRunRequest().withArn(arn)).getRun();
 
             if (!lastStatus.equals(run.getStatus().toString())) {
-                logger.info("Currently testing RUN with Arn: " + run.getArn() + " and status: " + run.getStatus().toString() + " (URL: " + utils.getRunUrlFromArn(run.getArn()) + " )");
+                logger.info(String.format("Currently testing RUN with Arn: %s and status: %s (URL: %s )",
+                                          run.getArn(),
+                                          run.getStatus().toString(),
+                                          utils.getRunUrlFromArn(run.getArn())));
+
                 lastStatus = run.getStatus().toString();
             }
 
@@ -67,9 +75,9 @@ public class DeviceFarmResultPoller {
                 return run;
             }
 
-            Thread.sleep(2000l);
+            Thread.sleep(SLEEP_DURATION);
         }
+
+        return null;
     }
 }
-
-
