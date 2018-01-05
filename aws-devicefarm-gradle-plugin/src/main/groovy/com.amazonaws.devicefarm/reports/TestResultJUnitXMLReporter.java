@@ -58,47 +58,49 @@ public class TestResultJUnitXMLReporter
     }
     
     public void writeResults(String destination) throws Exception {
+        List<Job> jobs = getJobs(this.run);
+        for (Job job : jobs) {
+            List<Suite> suites = getSuites(job);
+            ArrayList<JUnitSuite> junitSuites = new ArrayList<JUnitSuite>();
 
-        List<Suite> suites = getSuites(getJobs(this.run).get(0));
-        ArrayList<JUnitSuite> junitSuites = new ArrayList<JUnitSuite>();
+            for (int suiteIndex = 0; suiteIndex < suites.size(); suiteIndex++) {
+                junitSuites.add(buildTestSuite(suites.get(suiteIndex)));
+            }
 
-        for (int suiteIndex = 0; suiteIndex < suites.size(); suiteIndex++) {
-            junitSuites.add(buildTestSuite(suites.get(suiteIndex)));
-        }
+            for (int junitSuiteIndex = 0; junitSuiteIndex < junitSuites.size(); junitSuiteIndex++) {
+                JUnitSuite suite = junitSuites.get(junitSuiteIndex);
 
-        for (int junitSuiteIndex = 0; junitSuiteIndex < junitSuites.size(); junitSuiteIndex++) {
-            JUnitSuite suite = junitSuites.get(junitSuiteIndex);
+                if (destination != null) {
+                    logger.info("Found JUnitXMLReporter Destination Path: " + destination);
 
-            if (destination != null) {
-                logger.info("Found JUnitXMLReporter Destination Path: " + destination);
-
-                File testsDirectory = new File(destination).getAbsoluteFile();
-                logger.debug("Resolving to: " + testsDirectory.getAbsolutePath());
+                    File testsDirectory = new File(destination).getAbsoluteFile();
+                    logger.debug("Resolving to: " + testsDirectory.getAbsolutePath());
             
-                try {
+                    try {
                 
-                    if (!testsDirectory.exists()) {
-                        logger.info("Did not exist, creating new directory: " + testsDirectory.getAbsolutePath());
-                        testsDirectory.mkdirs();
-                    }
+                        if (!testsDirectory.exists()) {
+                            logger.info("Did not exist, creating new directory: " + testsDirectory.getAbsolutePath());
+                            testsDirectory.mkdirs();
+                        }
                 
-                    if (testsDirectory.exists()) {
-                        
-                        String xmlFilePath = new File(destination + File.separator + "TEST-" + suite.getClassName() + ".xml").getAbsoluteFile().getAbsolutePath();
-                        logger.info("Writing File " + xmlFilePath);
-                        String resultXmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                            + suite.toString();
+                        if (testsDirectory.exists()) {
 
-                        logger.debug("Result XML in File: " + xmlFilePath);
-                        logger.debug(resultXmlStr);
+                            String xmlFilePath = new File(destination + File.separator + "TEST-" + job.getDevice().getArn() + "-" + job.getDevice().getName() + "-" + suite.getClassName() + ".xml").getAbsoluteFile().getAbsolutePath();
+                            logger.info("Writing File " + xmlFilePath);
+                            String resultXmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                                + suite.toString();
+
+                            logger.debug("Result XML in File: " + xmlFilePath);
+                            logger.debug(resultXmlStr);
                 
-                        PrintWriter writer = new PrintWriter(xmlFilePath);
-                        writer.write(resultXmlStr);
-                        writer.close();
+                            PrintWriter writer = new PrintWriter(xmlFilePath);
+                            writer.write(resultXmlStr);
+                            writer.close();
+                        }
                     }
-                }
-                catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
             }
         }
