@@ -20,6 +20,10 @@ class DeviceFarmExtension {
 
     private final Project project
 
+    public enum OutputType {
+      JUnit
+    }
+
     /**
      * [Required] Name of Device Farm project which contains this application.
      */
@@ -41,6 +45,24 @@ class DeviceFarmExtension {
      * null == production per AWS SDK Client
      */
     String endpointOverride
+
+    /**
+     * [Optional] Wait for DeviceFarm to finish running the tests and consume results
+     * Default: False
+     */
+    boolean wait = false
+
+    /**
+     * [Optional] Produce output for Test Run results in format
+     * Default: JUnit
+     */
+    OutputType outputType = DeviceFarmExtension.OutputType.JUnit
+      
+    /**
+     * [Optional] Destination directory to store test suite results
+     * Default: "build/test-results/adf-tests"
+     */
+    String testsDestination = "build/test-results/adf-tests"
 
     /**
      * Console url template
@@ -115,6 +137,42 @@ class DeviceFarmExtension {
         metered = false
     }
 
+    /**
+     * Tell the plugin to wait for the Run to reach COMPLETE state before finishing this gradle task
+     */
+    void useWait() {
+        wait = true;
+    }
+
+    /**
+     * Don't wait for the Run to finish only upload the packages and kick off a Run
+     */
+    void uploadOnly() {
+        wait = false;
+    }
+
+    /**
+     * If we are waiting for the build to finish we will be harnessing the results of the Run as well. Select your
+     * output type using this method. Currently only supports "JUnit" for JUnit XML Export
+     */
+    void useOutput(String output) {
+        switch(output) {
+          case "JUnit":
+            outputType = DeviceFarmExtension.OutputType.JUnit;
+            break;
+          default: 
+            outputType = DeviceFarmExtension.OutputType.JUnit;
+            break;
+        }
+    }
+
+    /**
+     * Set an absolute or relative path where you wish to create the test output results. 
+     */
+    void setTestsDestination(String destination) {
+        testsDestination = destination
+    }
+  
     void authentication(Closure closure) {
         project.configure(authentication, closure)
 
@@ -160,5 +218,5 @@ class DeviceFarmExtension {
         test = appExplorerTest
 
     }
-
 }
+
