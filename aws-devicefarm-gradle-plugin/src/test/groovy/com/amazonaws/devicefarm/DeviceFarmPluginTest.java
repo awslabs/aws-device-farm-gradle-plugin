@@ -15,7 +15,6 @@
 package com.amazonaws.devicefarm;
 
 import com.amazonaws.devicefarm.extension.DeviceFarmExtension;
-import com.amazonaws.services.devicefarm.AWSDeviceFarm;
 import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
 import com.amazonaws.services.devicefarm.model.*;
 import com.android.build.gradle.AppExtension;
@@ -39,7 +38,7 @@ import static org.testng.AssertJUnit.assertTrue;
 public class DeviceFarmPluginTest {
 
     @Injectable
-    AWSDeviceFarm apiMock;
+    AWSDeviceFarmClient apiMock;
 
     @Injectable
     DeviceFarmUploader uploaderMock;
@@ -76,7 +75,7 @@ public class DeviceFarmPluginTest {
         DeviceFarmExtension extension = new DeviceFarmExtension(gradleProject);
         extension.setProjectName("MyProject");
 
-        DeviceFarmServer server = new DeviceFarmServer(extension, loggerMock, apiMock, uploaderMock, new DeviceFarmUtils(apiMock, extension));
+        DeviceFarmServer server = new DeviceFarmServer(extension, loggerMock, new DeviceFarmServerDependenciesMock(extension));
 
         final ScheduleRunResult runResult = new ScheduleRunResult();
         runResult.setRun(new Run());
@@ -118,4 +117,27 @@ public class DeviceFarmPluginTest {
 
     }
 
+    private class DeviceFarmServerDependenciesMock implements DeviceFarmServerDependencies {
+
+        private DeviceFarmExtension extension;
+
+        DeviceFarmServerDependenciesMock(DeviceFarmExtension extension) {
+            this.extension = extension;
+        }
+
+        @Override
+        public AWSDeviceFarmClient createDeviceFarmClient() {
+            return apiMock;
+        }
+
+        @Override
+        public DeviceFarmUploader createDeviceFarmUploader(AWSDeviceFarmClient client) {
+            return uploaderMock;
+        }
+
+        @Override
+        public DeviceFarmUtils createDeviceFarmUtils(AWSDeviceFarmClient client) {
+            return new DeviceFarmUtils(apiMock, extension);
+        }
+    }
 }
