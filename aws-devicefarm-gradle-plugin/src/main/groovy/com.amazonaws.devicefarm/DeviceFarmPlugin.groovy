@@ -35,6 +35,6 @@ class DeviceFarmPlugin implements Plugin<Project> {
 
         project.android.testServer(
                 new DeviceFarmServer(extension, project.android.logger,
-                        new DeviceFarmClientFactory(project.android.logger).initializeApiClient(extension)))
+                        new DeviceFarmServerDependenciesImpl(extension, project.android.logger)))
     }
 }

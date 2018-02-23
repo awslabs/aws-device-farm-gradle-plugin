@@ -16,7 +16,6 @@ package com.amazonaws.devicefarm;
 
 import com.amazonaws.devicefarm.extension.DeviceFarmExtension;
 import com.amazonaws.devicefarm.extension.TestPackageProvider;
-import com.amazonaws.services.devicefarm.AWSDeviceFarm;
 import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
 import com.amazonaws.services.devicefarm.model.BillingMethod;
 import com.amazonaws.services.devicefarm.model.DevicePool;
@@ -33,7 +32,6 @@ import com.google.common.collect.Lists;
 import org.gradle.api.logging.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -48,28 +46,12 @@ public class DeviceFarmServer extends TestServer {
 
     private final DeviceFarmExtension extension;
     private final Logger logger;
-    private final AWSDeviceFarm api;
-    private final DeviceFarmUploader uploader;
-    private final DeviceFarmUtils utils;
+    private DeviceFarmServerDependencies dependencies;
 
-    public DeviceFarmServer(final DeviceFarmExtension extension,
-                            final Logger logger, final AWSDeviceFarmClient deviceFarmClient) throws IOException {
-
-        this(extension, logger, deviceFarmClient,
-                new DeviceFarmUploader(deviceFarmClient, logger),
-                new DeviceFarmUtils(deviceFarmClient, extension));
-    }
-
-    public DeviceFarmServer(final DeviceFarmExtension extension,
-                            final Logger logger, final AWSDeviceFarm deviceFarmClient,
-                            final DeviceFarmUploader uploader,
-                            final DeviceFarmUtils utils) throws IOException {
-
+    DeviceFarmServer(final DeviceFarmExtension extension, final Logger logger, DeviceFarmServerDependencies dependencies) {
         this.extension = extension;
         this.logger = logger;
-        this.api = deviceFarmClient;
-        this.uploader = uploader;
-        this.utils = utils;
+        this.dependencies = dependencies;
     }
 
 
@@ -92,6 +74,10 @@ public class DeviceFarmServer extends TestServer {
      */
     @Override
     public void uploadApks(final String variantName, final File testPackage, final File testedApk) {
+        AWSDeviceFarmClient awsDeviceFarmClient = dependencies.createDeviceFarmClient();
+        DeviceFarmUploader uploader = dependencies.createDeviceFarmUploader(awsDeviceFarmClient);
+        DeviceFarmUtils utils = dependencies.createDeviceFarmUtils(awsDeviceFarmClient);
+
         final Project project = utils.findProjectByName(extension.getProjectName());
         logger.lifecycle(String.format("Using Project \"%s\", \"%s\"", project.getName(), project.getArn()));
 
@@ -101,15 +87,15 @@ public class DeviceFarmServer extends TestServer {
         final String appArn = uploader.upload(testedApk == null ? testPackage : testedApk, project, UploadType.ANDROID_APP).getArn();
         logger.lifecycle(String.format("Will test app in  \"%s\", \"%s\"", testedApk == null ? testPackage.getName() : testedApk.getName(), appArn));
 
-        final Collection<Upload> auxApps = uploadAuxApps(project);
+        final Collection<Upload> auxApps = uploadAuxApps(uploader, project);
 
-        final String extraDataArn = uploadExtraDataZip(project);
+        final String extraDataArn = uploadExtraDataZip(uploader, project);
 
         final ScheduleRunTest runTest = new ScheduleRunTest()
                 .withParameters(extension.getTest().getTestParameters())
                 .withType(extension.getTest().getTestType())
                 .withFilter(extension.getTest().getFilter())
-                .withTestPackageArn(uploadTestPackageIfNeeded(project, testPackage));
+                .withTestPackageArn(uploadTestPackageIfNeeded(uploader, project, testPackage));
 
         runTest.addParametersEntry(RUNPARAM_VIDEO_RECORDING, Boolean.toString(extension.getVideoRecording()));
         runTest.addParametersEntry(RUNPARAM_APP_PERF_MONITORING, Boolean.toString(extension.getPerformanceMonitoring()));
@@ -134,7 +120,7 @@ public class DeviceFarmServer extends TestServer {
                 .withExecutionConfiguration(executionConfiguration)
                 .withName(String.format("%s (Gradle)", testedApk == null ? testPackage.getName() : testedApk.getName()));
 
-        final ScheduleRunResult response = api.scheduleRun(request);
+        final ScheduleRunResult response = awsDeviceFarmClient.scheduleRun(request);
 
         logger.lifecycle(String.format("View the %s run in the AWS Device Farm Console: %s",
                 runTest.getType(), utils.getRunUrlFromArn(response.getRun().getArn())));
@@ -147,7 +133,7 @@ public class DeviceFarmServer extends TestServer {
      * @param testPackage the test package
      * @return test package arn, or null if test does not require a test package
      */
-    private String uploadTestPackageIfNeeded(final Project project, final File testPackage) {
+    private String uploadTestPackageIfNeeded(final DeviceFarmUploader uploader, final Project project, final File testPackage) {
 
         String testArtifactsArn = null;
         if (extension.getTest() instanceof TestPackageProvider) {
@@ -167,7 +153,7 @@ public class DeviceFarmServer extends TestServer {
         return testArtifactsArn;
     }
 
-    private Collection<Upload> uploadAuxApps(final Project project) {
+    private Collection<Upload> uploadAuxApps(DeviceFarmUploader uploader, final Project project) {
 
         final Collection<Upload> auxApps = uploader.batchUpload(extension.getDeviceState().getAuxiliaryApps(),
                 project, UploadType.ANDROID_APP);
@@ -184,7 +170,7 @@ public class DeviceFarmServer extends TestServer {
         return auxApps;
     }
 
-    private String uploadExtraDataZip(final Project project) {
+    private String uploadExtraDataZip(final DeviceFarmUploader uploader, final Project project) {
 
         final File extraDataZip = extension.getDeviceState().getExtraDataZipFile();
 

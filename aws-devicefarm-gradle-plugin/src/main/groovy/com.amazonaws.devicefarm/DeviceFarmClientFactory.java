@@ -15,7 +15,8 @@
 package com.amazonaws.devicefarm;
 
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.amazonaws.devicefarm.extension.DeviceFarmExtension;
 import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
@@ -41,19 +42,18 @@ public class DeviceFarmClientFactory {
 
         final String roleArn = extension.getAuthentication().getRoleArn();
 
-        AWSCredentials credentials = extension.getAuthentication();
+        AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(extension.getAuthentication());
 
         if (roleArn != null) {
-            final STSAssumeRoleSessionCredentialsProvider sts = new STSAssumeRoleSessionCredentialsProvider
+            credentialsProvider = new STSAssumeRoleSessionCredentialsProvider
                     .Builder(roleArn, RandomStringUtils.randomAlphanumeric(8))
                     .build();
-            credentials = sts.getCredentials();
         }
 
         final ClientConfiguration clientConfiguration = new ClientConfiguration()
                 .withUserAgent(String.format(extension.getUserAgent(), pluginVersion));
 
-        AWSDeviceFarmClient apiClient = new AWSDeviceFarmClient(credentials, clientConfiguration);
+        AWSDeviceFarmClient apiClient = new AWSDeviceFarmClient(credentialsProvider, clientConfiguration);
         apiClient.setServiceNameIntern("devicefarm");
         if (extension.getEndpointOverride() != null) {
             apiClient.setEndpoint(extension.getEndpointOverride());
