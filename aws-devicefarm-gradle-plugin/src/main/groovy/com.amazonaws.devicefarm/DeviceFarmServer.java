@@ -14,6 +14,8 @@
 //
 package com.amazonaws.devicefarm;
 
+import java.util.List;
+
 import com.amazonaws.devicefarm.extension.DeviceFarmExtension;
 import com.amazonaws.devicefarm.extension.TestPackageProvider;
 import com.amazonaws.services.devicefarm.AWSDeviceFarm;
@@ -26,8 +28,10 @@ import com.amazonaws.services.devicefarm.model.ScheduleRunConfiguration;
 import com.amazonaws.services.devicefarm.model.ScheduleRunRequest;
 import com.amazonaws.services.devicefarm.model.ScheduleRunResult;
 import com.amazonaws.services.devicefarm.model.ScheduleRunTest;
+import com.amazonaws.services.devicefarm.model.Run;
 import com.amazonaws.services.devicefarm.model.Upload;
 import com.amazonaws.services.devicefarm.model.UploadType;
+
 import com.android.builder.testing.api.TestServer;
 import com.google.common.collect.Lists;
 import org.gradle.api.logging.Logger;
@@ -136,6 +140,17 @@ public class DeviceFarmServer extends TestServer {
 
         final ScheduleRunResult response = api.scheduleRun(request);
 
+        if (extension.isWait()) {
+            DeviceFarmResultPoller poller = new DeviceFarmResultPoller(extension, logger, api, utils);
+            try {
+                Run completedRun = poller.pollTestRunForArn(response.getRun().getArn());
+            }
+            catch (Exception e)
+            {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
         logger.lifecycle(String.format("View the %s run in the AWS Device Farm Console: %s",
                 runTest.getType(), utils.getRunUrlFromArn(response.getRun().getArn())));
     }
@@ -151,7 +166,6 @@ public class DeviceFarmServer extends TestServer {
 
         String testArtifactsArn = null;
         if (extension.getTest() instanceof TestPackageProvider) {
-
             final TestPackageProvider testPackageProvider = (TestPackageProvider) extension.getTest();
 
             final File testArtifacts = testPackageProvider.resolveTestPackage(testPackage);

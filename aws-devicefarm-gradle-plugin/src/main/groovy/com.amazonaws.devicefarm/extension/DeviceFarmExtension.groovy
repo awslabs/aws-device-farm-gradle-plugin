@@ -43,6 +43,12 @@ class DeviceFarmExtension {
     String endpointOverride
 
     /**
+     * [Optional] Wait for DeviceFarm to finish running the tests and consume results
+     * Default: False
+     */
+    boolean wait = false
+
+    /**
      * Console url template
      * param1 = project arn
      * param2 = run arn
@@ -115,6 +121,14 @@ class DeviceFarmExtension {
         metered = false
     }
 
+    void useWait() {
+        wait = true;
+    }
+
+    void uploadOnly() {
+        wait = false;
+    }
+  
     void authentication(Closure closure) {
         project.configure(authentication, closure)
 
@@ -160,5 +174,5 @@ class DeviceFarmExtension {
         test = appExplorerTest
 
     }
-
 }
+
