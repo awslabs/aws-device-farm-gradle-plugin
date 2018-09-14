@@ -47,5 +47,13 @@ abstract class ConfiguredTest {
         return null;
     }
 
+    String getTestSpecName() {
+        if (this instanceof CustomMode) {
+            return ((CustomMode) this).getTestSpecName();
+        }
+
+        return null;
+    }
+
 
 }

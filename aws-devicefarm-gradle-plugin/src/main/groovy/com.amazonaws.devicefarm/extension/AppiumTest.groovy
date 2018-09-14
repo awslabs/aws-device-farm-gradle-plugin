@@ -20,7 +20,7 @@ import com.amazonaws.services.devicefarm.model.UploadType
 /**
  * JUNIT by default.
  */
-class AppiumTest extends ConfiguredTest implements TestPackageProvider {
+class AppiumTest extends ConfiguredTest implements TestPackageProvider, CustomMode {
 
     {
         testType = TestType.APPIUM_JAVA_JUNIT
@@ -41,6 +41,14 @@ class AppiumTest extends ConfiguredTest implements TestPackageProvider {
     void useJUnit() {
         testType = TestType.APPIUM_JAVA_JUNIT
         this.testPackageUploadType = UploadType.APPIUM_JAVA_JUNIT_TEST_PACKAGE
+    }
+
+    /**
+     * Configure for python
+     */
+    void usePython() {
+        testType = TestType.APPIUM_PYTHON
+        this.testPackageUploadType = UploadType.APPIUM_PYTHON_TEST_PACKAGE
     }
 
     @Override

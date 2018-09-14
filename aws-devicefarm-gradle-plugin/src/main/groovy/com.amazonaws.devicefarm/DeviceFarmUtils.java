@@ -21,7 +21,13 @@ import com.amazonaws.services.devicefarm.model.ListDevicePoolsRequest;
 import com.amazonaws.services.devicefarm.model.ListDevicePoolsResult;
 import com.amazonaws.services.devicefarm.model.ListProjectsRequest;
 import com.amazonaws.services.devicefarm.model.ListProjectsResult;
+import com.amazonaws.services.devicefarm.model.ListUploadsRequest;
+import com.amazonaws.services.devicefarm.model.ListUploadsResult;
 import com.amazonaws.services.devicefarm.model.Project;
+import com.amazonaws.services.devicefarm.model.Upload;
+import com.amazonaws.services.devicefarm.model.UploadStatus;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +52,77 @@ public class DeviceFarmUtils {
      */
     public List<Project> getProjects() {
 
-        final ListProjectsResult result = api.listProjects(new ListProjectsRequest());
-
-        if (result == null) {
-            return new ArrayList<>();
-        } else {
-            return result.getProjects();
+        List<Project> projects = new ArrayList<Project>();
+        ListProjectsResult result = api.listProjects(new ListProjectsRequest());
+        projects.addAll(result.getProjects());
+        while (result.getNextToken() != null) {
+            ListProjectsRequest request = new ListProjectsRequest();
+            request.setNextToken(result.getNextToken());
+            result = api.listProjects(request);
+            projects.addAll(result.getProjects());
         }
+        return projects;
+    }
+
+    /**
+     * Get Device Farm uploads for a given Device Farm project.
+     *
+     * @param project
+     *            Device Farm Project.
+     * @return A List of the Device Farm uploads.
+     */
+    public List<Upload> getUploads(Project project) {
+
+        List<Upload> uploads = new ArrayList<Upload>();
+        ListUploadsResult result = api.listUploads(new ListUploadsRequest().withArn(project.getArn()));
+        uploads.addAll(result.getUploads());
+        while (result.getNextToken() != null) {
+            ListUploadsRequest request = new ListUploadsRequest();
+            request.setNextToken(result.getNextToken());
+            result = api.listUploads(request);
+            uploads.addAll(result.getUploads());
+        }
+        return uploads;
+    }
+
+    /**
+     * Get Device Farm TestSpecs  for a given Device Farm project.
+     *
+     * @param project Device Farm Project.
+     * @return A List of the Device Farm TestSpecs.
+     */
+    public List<Upload> getTestSpecs(Project project)  {
+        List<Upload> allUploads = getUploads(project);
+        List<Upload> testSpecUploads = new ArrayList<Upload>();
+        for (Upload upload : allUploads) {
+            if (upload.getType().contains("TEST_SPEC")
+                    && UploadStatus.SUCCEEDED.toString().equals(upload.getStatus())) {
+                testSpecUploads.add(upload);
+
+            }
+        }
+        return testSpecUploads;
+    }
+
+    /**
+     * Get Device Farm testSpec by name.
+     *
+     * @param testSpecName String name of the Device Farm testSpec.
+     * @param project Device Farm project
+     * @return The Device Farm project.
+     */
+    public Upload findTestSpecByName(final String testSpecName, Project project) {
+
+        if (StringUtils.isBlank(testSpecName)) {
+            return null;
+        }
+        for (Upload upload : getTestSpecs(project)) {
+            if (upload.getName().equals(testSpecName)) {
+                return upload;
+            }
+        }
+
+        throw new DeviceFarmException(String.format("testSpec '%s' not found.", testSpecName));
     }
 
     /**
