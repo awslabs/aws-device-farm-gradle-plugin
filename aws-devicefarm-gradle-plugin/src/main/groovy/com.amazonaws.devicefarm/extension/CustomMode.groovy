@@ -14,17 +14,12 @@
 //
 package com.amazonaws.devicefarm.extension
 
-import com.amazonaws.services.devicefarm.model.TestType
-import com.amazonaws.services.devicefarm.model.UploadType
+/**
+ * Marks tests that have filter
+ */
+trait CustomMode {
 
-class InstrumentationTest extends ConfiguredTest implements TestPackageProvider, HasFilter, CustomMode {
+    String testSpecName
 
-    {
-        testType = TestType.INSTRUMENTATION
-        this.testPackageUploadType = UploadType.INSTRUMENTATION_TEST_PACKAGE
-    }
-
-    @Override
-    boolean isValid() { return true }
-
+    void testSpecName(String val) { testSpecName = val }
 }

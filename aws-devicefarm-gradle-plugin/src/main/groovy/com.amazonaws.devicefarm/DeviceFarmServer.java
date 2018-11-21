@@ -43,7 +43,6 @@ import java.util.List;
  */
 public class DeviceFarmServer extends TestServer {
 
-    private static final String RUNPARAM_VIDEO_RECORDING = "video_recording";
     private static final String RUNPARAM_APP_PERF_MONITORING = "app_performance_monitoring";
 
     private final DeviceFarmExtension extension;
@@ -105,17 +104,25 @@ public class DeviceFarmServer extends TestServer {
 
         final String extraDataArn = uploadExtraDataZip(project);
 
+        // For few frameworks , you can specify a testSpec
+        final Upload testSpec = utils.findTestSpecByName(extension.getTest().getTestSpecName(), project);
+        if (testSpec != null) {
+            logger.lifecycle(String.format("Using  TestSpec \"%s\", \"%s\"", testSpec.getName(), testSpec.getArn()));
+        }
+
         final ScheduleRunTest runTest = new ScheduleRunTest()
                 .withParameters(extension.getTest().getTestParameters())
                 .withType(extension.getTest().getTestType())
                 .withFilter(extension.getTest().getFilter())
-                .withTestPackageArn(uploadTestPackageIfNeeded(project, testPackage));
+                .withTestPackageArn(uploadTestPackageIfNeeded(project, testPackage))
+                .withTestSpecArn(testSpec == null ? null: testSpec.getArn());
 
-        runTest.addParametersEntry(RUNPARAM_VIDEO_RECORDING, Boolean.toString(extension.getVideoRecording()));
+
         runTest.addParametersEntry(RUNPARAM_APP_PERF_MONITORING, Boolean.toString(extension.getPerformanceMonitoring()));
 
         final ExecutionConfiguration executionConfiguration = new ExecutionConfiguration()
-                .withJobTimeoutMinutes(extension.getExecutionTimeoutMinutes());
+                .withJobTimeoutMinutes(extension.getExecutionTimeoutMinutes())
+                .withVideoCapture(extension.getVideoRecording());
 
         final ScheduleRunConfiguration configuration = new ScheduleRunConfiguration()
                 .withAuxiliaryApps(getAuxAppArns(auxApps))

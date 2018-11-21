@@ -169,17 +169,19 @@ Appium
 
 * [Appium JUnit](http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-java-junit.html)
 * [Appium TestNG](http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-java-testng.html)
+* [Appium Python](http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-python.html)
 
-Device Farm provides support for Appium Java TestNG and JUnit for Android. 
+Device Farm provides support for Appium Java TestNG , Appium Java JUnit and Appium Java python for Android.
 
-You can choose to `useTestNG()` or `useJUnit()`. 
+You can choose to `useTestNG()` or `useJUnit()` or  `usePython()`.
 
 JUnit is the default and does not need to be explicitly specified.
 
 ```gradle
 appium {
     tests file("path to zip file") // Required
-    useTestNG() // or useJUnit()
+    useTestNG() // or useJUnit() or usePython()
+    testSpecName "My Test Spec Name" // if you want to use Custom Mode // Optional
 }
 ```
 
@@ -234,6 +236,7 @@ When running an instrumentation test in gradle the apk generated from your andro
 ```gradle
 instrumentation { 
     filter "test filter per developer docs" // Optional
+    testSpecName "My Test Spec Name" // if you want to use Custom Mode // Optional
 }
 ```
 
