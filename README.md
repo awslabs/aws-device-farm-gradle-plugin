@@ -170,18 +170,20 @@ Appium
 * [Appium JUnit](http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-java-junit.html)
 * [Appium TestNG](http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-java-testng.html)
 * [Appium Python](http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-python.html)
+* [Appium Ruby](http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-ruby.html)
+* [Appium Node.js](http://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-android-appium-node.html)
 
-Device Farm provides support for Appium Java TestNG , Appium Java JUnit and Appium Java python for Android.
+Device Farm provides support for Appium Java TestNG , Appium Java JUnit, Appium python, Appium Node.js and Appium Ruby for Android.
 
-You can choose to `useTestNG()` or `useJUnit()` or  `usePython()`.
+You can choose to `useTestNG()` or `useJUnit()` or  `usePython()` or `useNode()`` or `useRuby()`.
 
 JUnit is the default and does not need to be explicitly specified.
 
 ```gradle
 appium {
     tests file("path to zip file") // Required
-    useTestNG() // or useJUnit() or usePython()
-    testSpecName "My Test Spec Name" // if you want to use Custom Mode // Optional
+    useTestNG() // or useJUnit() or usePython() or useNode() or useRuby()
+    testSpecName "My Test Spec Name" // if you want to use Custom Mode // Optional for TestNG, JUnit and Python
 }
 ```
 
