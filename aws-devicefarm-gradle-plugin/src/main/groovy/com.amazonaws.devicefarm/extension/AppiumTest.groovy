@@ -51,6 +51,22 @@ class AppiumTest extends ConfiguredTest implements TestPackageProvider, CustomMo
         this.testPackageUploadType = UploadType.APPIUM_PYTHON_TEST_PACKAGE
     }
 
+    /**
+     * Configure for Ruby
+     */
+    void useRuby() {
+        testType = TestType.APPIUM_RUBY
+        this.testPackageUploadType = UploadType.APPIUM_RUBY_TEST_PACKAGE
+    }
+
+    /**
+     * Configure for Node.js
+     */
+    void useNode() {
+        testType = TestType.APPIUM_NODE
+        this.testPackageUploadType = UploadType.APPIUM_NODE_TEST_PACKAGE
+    }
+
     @Override
     boolean isValid() { TestPackageProvider.super.isValid() }
 
