@@ -85,6 +85,12 @@ class DeviceFarmExtension {
      */
     ConfiguredTest test = new InstrumentationTest();
 
+    /**
+    * This property will be used to shard the tests across devices
+    */
+    boolean testSharding = false
+
+
     DeviceFarmExtension(final Project project) {
         this.project = project;
     }
