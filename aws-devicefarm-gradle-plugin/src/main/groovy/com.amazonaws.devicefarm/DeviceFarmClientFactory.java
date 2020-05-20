@@ -51,7 +51,6 @@ public class DeviceFarmClientFactory {
                 .withUserAgentSuffix(String.format(extension.getUserAgent(), pluginVersion));
         return clientBuilder.withCredentials(credentialsProvider)
                             .withClientConfiguration(clientConfiguration)
-                            .withRegion("us-west-2")
                             .build();
     }
 
