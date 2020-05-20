@@ -25,6 +25,7 @@ class AppiumTest extends ConfiguredTest implements TestPackageProvider, CustomMo
     {
         testType = TestType.APPIUM_JAVA_JUNIT
         this.testPackageUploadType = UploadType.APPIUM_JAVA_JUNIT_TEST_PACKAGE
+        this.testSpecUploadType = UploadType.APPIUM_JAVA_JUNIT_TEST_SPEC
     }
 
     /**
@@ -33,6 +34,7 @@ class AppiumTest extends ConfiguredTest implements TestPackageProvider, CustomMo
     void useTestNG() {
         testType = TestType.APPIUM_JAVA_TESTNG
         this.testPackageUploadType = UploadType.APPIUM_JAVA_TESTNG_TEST_PACKAGE
+        this.testSpecUploadType = UploadType.APPIUM_JAVA_TESTNG_TEST_SPEC
     }
 
     /**
@@ -41,6 +43,7 @@ class AppiumTest extends ConfiguredTest implements TestPackageProvider, CustomMo
     void useJUnit() {
         testType = TestType.APPIUM_JAVA_JUNIT
         this.testPackageUploadType = UploadType.APPIUM_JAVA_JUNIT_TEST_PACKAGE
+        this.testSpecUploadType = UploadType.APPIUM_JAVA_JUNIT_TEST_SPEC
     }
 
     /**
@@ -49,6 +52,7 @@ class AppiumTest extends ConfiguredTest implements TestPackageProvider, CustomMo
     void usePython() {
         testType = TestType.APPIUM_PYTHON
         this.testPackageUploadType = UploadType.APPIUM_PYTHON_TEST_PACKAGE
+        this.testSpecUploadType = UploadType.APPIUM_PYTHON_TEST_SPEC
     }
 
     /**
@@ -57,6 +61,7 @@ class AppiumTest extends ConfiguredTest implements TestPackageProvider, CustomMo
     void useRuby() {
         testType = TestType.APPIUM_RUBY
         this.testPackageUploadType = UploadType.APPIUM_RUBY_TEST_PACKAGE
+        this.testSpecUploadType = UploadType.APPIUM_RUBY_TEST_SPEC
     }
 
     /**
@@ -65,6 +70,7 @@ class AppiumTest extends ConfiguredTest implements TestPackageProvider, CustomMo
     void useNode() {
         testType = TestType.APPIUM_NODE
         this.testPackageUploadType = UploadType.APPIUM_NODE_TEST_PACKAGE
+        this.testSpecUploadType = UploadType.APPIUM_NODE_TEST_SPEC
     }
 
     @Override

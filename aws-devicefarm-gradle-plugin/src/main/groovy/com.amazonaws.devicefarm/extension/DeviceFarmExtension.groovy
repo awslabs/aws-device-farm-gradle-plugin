@@ -70,6 +70,11 @@ class DeviceFarmExtension {
     boolean performanceMonitoring = true
 
     /**
+     * Split test cases across device pool devices
+     */
+    boolean testShardingEnabled = false
+
+    /**
      * Authentication credentials
      */
     Authentication authentication = new Authentication();

@@ -14,12 +14,14 @@
 //
 package com.amazonaws.devicefarm;
 
-import com.amazonaws.devicefarm.extension.DeviceFarmExtension;
 import com.amazonaws.devicefarm.extension.TestPackageProvider;
+import com.amazonaws.devicefarm.extension.DeviceFarmExtension;
 import com.amazonaws.services.devicefarm.AWSDeviceFarm;
 import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
 import com.amazonaws.services.devicefarm.model.BillingMethod;
+import com.amazonaws.services.devicefarm.model.DeviceFilter;
 import com.amazonaws.services.devicefarm.model.DevicePool;
+import com.amazonaws.services.devicefarm.model.DeviceSelectionConfiguration;
 import com.amazonaws.services.devicefarm.model.ExecutionConfiguration;
 import com.amazonaws.services.devicefarm.model.Project;
 import com.amazonaws.services.devicefarm.model.ScheduleRunConfiguration;
@@ -34,7 +36,9 @@ import org.gradle.api.logging.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -43,7 +47,10 @@ import java.util.List;
  */
 public class DeviceFarmServer extends TestServer {
 
+    private static final String RUNPARAM_VIDEO_RECORDING = "video_recording";
     private static final String RUNPARAM_APP_PERF_MONITORING = "app_performance_monitoring";
+    private static final String DEVICE_FILTER_ATTRIBUTE = "ARN";
+    private static final String DEVICE_FILTER_OPERATOR = "IN";
 
     private final DeviceFarmExtension extension;
     private final Logger logger;
@@ -95,34 +102,24 @@ public class DeviceFarmServer extends TestServer {
         logger.lifecycle(String.format("Using Project \"%s\", \"%s\"", project.getName(), project.getArn()));
 
         final DevicePool devicePool = utils.findDevicePoolByName(project, extension.getDevicePool());
-        logger.lifecycle(String.format("Using Device Pool \"%s\", \"%s\"", devicePool.getName(), devicePool.getArn()));
+        logger.lifecycle(String.format("Using Device Pool \"%s\", \"%s\"", devicePool.getName(),
+                                       devicePool.getArn()));
 
         final String appArn = uploader.upload(testedApk == null ? testPackage : testedApk, project, UploadType.ANDROID_APP).getArn();
         logger.lifecycle(String.format("Will test app in  \"%s\", \"%s\"", testedApk == null ? testPackage.getName() : testedApk.getName(), appArn));
 
         final Collection<Upload> auxApps = uploadAuxApps(project);
 
+        final Collection<Upload> testSpecs = uploadTestSpec(project);
+
         final String extraDataArn = uploadExtraDataZip(project);
 
-        // For few frameworks , you can specify a testSpec
-        final Upload testSpec = utils.findTestSpecByName(extension.getTest().getTestSpecName(), project);
-        if (testSpec != null) {
-            logger.lifecycle(String.format("Using  TestSpec \"%s\", \"%s\"", testSpec.getName(), testSpec.getArn()));
-        }
-
-        final ScheduleRunTest runTest = new ScheduleRunTest()
-                .withParameters(extension.getTest().getTestParameters())
-                .withType(extension.getTest().getTestType())
-                .withFilter(extension.getTest().getFilter())
-                .withTestPackageArn(uploadTestPackageIfNeeded(project, testPackage))
-                .withTestSpecArn(testSpec == null ? null: testSpec.getArn());
-
-
-        runTest.addParametersEntry(RUNPARAM_APP_PERF_MONITORING, Boolean.toString(extension.getPerformanceMonitoring()));
+        ScheduleRunRequest request;
+        ScheduleRunResult response;
+        ScheduleRunTest runTest;
 
         final ExecutionConfiguration executionConfiguration = new ExecutionConfiguration()
-                .withJobTimeoutMinutes(extension.getExecutionTimeoutMinutes())
-                .withVideoCapture(extension.getVideoRecording());
+                .withJobTimeoutMinutes(extension.getExecutionTimeoutMinutes());
 
         final ScheduleRunConfiguration configuration = new ScheduleRunConfiguration()
                 .withAuxiliaryApps(getAuxAppArns(auxApps))
@@ -131,20 +128,90 @@ public class DeviceFarmServer extends TestServer {
                 .withLocation(extension.getDeviceState().getLocation())
                 .withBillingMethod(extension.isMetered() ? BillingMethod.METERED : BillingMethod.UNMETERED)
                 .withRadios(extension.getDeviceState().getRadios());
+        runTest = runTestInstance(project, testPackage);
 
-        final ScheduleRunRequest request = new ScheduleRunRequest()
+        if (extension.isTestShardingEnabled()
+                && !extension.getDevicePool().equalsIgnoreCase("Top Devices")
+                && testSpecs != null) {
+            int device = 0;
+            final String[] devicePools = utils.getDevicesInDevicePool(devicePool);
+            for (Upload testSpec : testSpecs) {
+                final String runName = testSpec.getName().split("\\.")[0];
+                logger.lifecycle(String.format("Test spec name \"%s\" with arn \"%s\"", testSpec.getName(), testSpec.getArn()));
+
+                runTest.withTestSpecArn(testSpec.getArn());
+                request = scheduleRunRequestInstance(appArn, configuration, project.getArn(),
+                                                     runTest, executionConfiguration,
+                                                     testPackage, testedApk, runName);
+
+                final DeviceFilter deviceFilter = getDeviceFilterInstance(DEVICE_FILTER_ATTRIBUTE, DEVICE_FILTER_OPERATOR, Collections.singleton(devicePools[device ++]));
+
+                final DeviceSelectionConfiguration deviceSelectionConfiguration = getDeviceSelectionConfiguration(deviceFilter, 1);
+                request.setDeviceSelectionConfiguration(deviceSelectionConfiguration);
+
+                response = api.scheduleRun(request);
+                logger.lifecycle(String.format("View the %s run in the AWS Device Farm Console: %s", runTest
+                        .getType(), utils.getRunUrlFromArn(response.getRun().getArn())));
+
+                if (device == testSpecs.size()) {
+                    device = 0;
+                }
+            }
+        } else {
+            request = scheduleRunRequestInstance(appArn, configuration, project.getArn(), runTest, executionConfiguration,
+                                                 testPackage, testedApk, extension.getDevicePool());
+            request.withDevicePoolArn(devicePool.getArn());
+            response = api.scheduleRun(request);
+            logger.lifecycle(String.format("View the %s run in the AWS Device Farm Console: %s",
+                                           runTest.getType(), utils.getRunUrlFromArn(response.getRun().getArn())));
+
+        }
+    }
+
+    private DeviceSelectionConfiguration getDeviceSelectionConfiguration(final DeviceFilter deviceFilter, int maxDevices) {
+        return new DeviceSelectionConfiguration()
+        .withFilters(Collections.singleton(deviceFilter))
+        .withMaxDevices(maxDevices);
+    }
+
+
+    private ScheduleRunTest runTestInstance(final Project project, final File testPackage) {
+        ScheduleRunTest runTest = new ScheduleRunTest()
+                .withParameters(extension.getTest().getTestParameters())
+                .withType(extension.getTest().getTestType())
+                .withFilter(extension.getTest().getFilter())
+                .withTestPackageArn(uploadTestPackageIfNeeded(project, testPackage));
+
+        runTest.addParametersEntry(RUNPARAM_VIDEO_RECORDING, Boolean.toString(extension.getVideoRecording()));
+        runTest.addParametersEntry(RUNPARAM_APP_PERF_MONITORING, Boolean.toString(extension.getPerformanceMonitoring()));
+
+        return runTest;
+    }
+
+    private DeviceFilter getDeviceFilterInstance(final String attribute, final String operator,
+                                                 final Collection<String> values) {
+        return new DeviceFilter()
+                .withAttribute(attribute)
+                .withOperator(operator)
+                .withValues(values);
+    }
+
+    private ScheduleRunRequest scheduleRunRequestInstance(final String appArn,
+                                                          final ScheduleRunConfiguration scheduleRunConfiguration,
+                                                          final String projectArn,
+                                                          final ScheduleRunTest scheduleRunTest,
+                                                          final ExecutionConfiguration executionConfiguration,
+                                                          final File testPackage,
+                                                          final File testedApk,
+                                                          final String runName) {
+        return new ScheduleRunRequest()
                 .withAppArn(appArn)
-                .withConfiguration(configuration)
-                .withDevicePoolArn(devicePool.getArn())
-                .withProjectArn(project.getArn())
-                .withTest(runTest)
+                .withProjectArn(projectArn)
+                .withConfiguration(scheduleRunConfiguration)
+                .withTest(scheduleRunTest)
                 .withExecutionConfiguration(executionConfiguration)
-                .withName(String.format("%s (Gradle)", testedApk == null ? testPackage.getName() : testedApk.getName()));
-
-        final ScheduleRunResult response = api.scheduleRun(request);
-
-        logger.lifecycle(String.format("View the %s run in the AWS Device Farm Console: %s",
-                runTest.getType(), utils.getRunUrlFromArn(response.getRun().getArn())));
+                .withName(String.format("%s-%s (Gradle)", runName,
+                                        testedApk == null ? testPackage.getName() : testedApk.getName()));
     }
 
     /**
@@ -172,6 +239,29 @@ public class DeviceFarmServer extends TestServer {
         }
 
         return testArtifactsArn;
+    }
+
+    private Collection<Upload> uploadTestSpec(final Project project) {
+
+        Collection<Upload> testSpecFiles = new ArrayList<>();
+
+        if (extension.getTest() instanceof TestPackageProvider) {
+            final TestPackageProvider testPackageProvider = (TestPackageProvider) extension.getTest();
+            testSpecFiles = uploader.batchUpload(extension.getDeviceState().getTestSpecFiles(),
+                                                                    project,
+                                                                    testPackageProvider.getTestSpecUploadType());
+        }
+
+        if (testSpecFiles == null || testSpecFiles.size() == 0) {
+            return null;
+        }
+
+        for (Upload testSpecFile : testSpecFiles) {
+            logger.lifecycle(String.format("Will upload additional test spec files %s, %s",
+                                           testSpecFile.getName(), testSpecFile.getArn()));
+        }
+
+        return testSpecFiles;
     }
 
     private Collection<Upload> uploadAuxApps(final Project project) {

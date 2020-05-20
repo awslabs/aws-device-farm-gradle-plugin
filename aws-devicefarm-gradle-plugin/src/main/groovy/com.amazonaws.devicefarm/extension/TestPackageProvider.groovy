@@ -27,6 +27,11 @@ trait TestPackageProvider {
      */
     UploadType testPackageUploadType
 
+    /**
+     * returns the upload type for the test spec file
+     */
+    UploadType testSpecUploadType
+
     File testPackage = null
 
     void tests(File val) { testPackage = val }
