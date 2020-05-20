@@ -37,7 +37,7 @@ dependencies {
 
     compile 'com.android.tools.build:builder-test-api:0.5.2'
     compile 'org.apache.commons:commons-lang3:3.4'
-    compile 'com.amazonaws:aws-java-sdk:1.11.481'
+    compile 'com.amazonaws:aws-java-sdk:1.11.753'
     testCompile 'org.testng:testng:6.8.8'
     testCompile 'com.android.tools.build:gradle:3.0.0'
     testCompile 'org.jmockit:jmockit:1.19'
@@ -49,7 +49,7 @@ test {
 }
 
 group 'com.amazonaws'
-version '1.4'
+version '1.5'
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 

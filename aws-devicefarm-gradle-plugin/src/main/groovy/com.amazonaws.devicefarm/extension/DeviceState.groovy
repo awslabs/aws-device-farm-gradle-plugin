@@ -25,6 +25,7 @@ class DeviceState {
 
     File extraDataZipFile
     List<File> auxiliaryApps = Collections.emptyList()
+    List<File> testSpecFiles = Collections.emptyList()
     def wifiOn = true;
     def bluetoothOn = true;
     def gpsOn = true;
@@ -39,6 +40,8 @@ class DeviceState {
     void extraDataZipFile(File val) { extraDataZipFile = val }
 
     void auxiliaryApps(FileCollection val) { auxiliaryApps = val as List }
+
+    void testSpecFiles(FileCollection val) { testSpecFiles = val as List }
 
     void wifi(String onOff) { wifiOn = OnOffConfiguration.valueOf(onOff).bool }
 

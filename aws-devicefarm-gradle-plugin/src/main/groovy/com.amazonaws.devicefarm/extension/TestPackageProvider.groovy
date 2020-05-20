@@ -27,6 +27,11 @@ trait TestPackageProvider {
      */
     UploadType testPackageUploadType
 
+    /**
+    * returns the upload type for the test spec file
+    */
+    UploadType testSpecUploadType
+
     File testPackage = null
 
     void tests(File val) { testPackage = val }
@@ -38,7 +43,6 @@ trait TestPackageProvider {
      * @return the test Apk
      */
     File resolveTestPackage(File defaultTestPackage) { testPackage ?: defaultTestPackage }
-
 
     boolean isValid() {
         testPackage != null && testPackage.canRead()

@@ -190,6 +190,19 @@ public class DeviceFarmUtils {
     }
 
     /**
+     * Extract the devices arn from the given device pool and return the array of arns.
+     * @param devicePool in which the tests going to get triggered.
+     * @return array of device arns.
+     */
+    public String[] getDevicesInDevicePool(DevicePool devicePool) {
+        return devicePool.getRules().get(0).getValue()
+                         .replace("[\"","")
+                         .replace("]\"", "")
+                         .replace("\"", "")
+                         .split(",");
+    }
+
+    /**
      * Get the Device Farm run ID from the Device Farm run ARN.
      *
      * @param arn The Device Farm run ARN.

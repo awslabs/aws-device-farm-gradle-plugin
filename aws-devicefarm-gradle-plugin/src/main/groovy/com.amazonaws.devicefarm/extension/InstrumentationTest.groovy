@@ -22,6 +22,7 @@ class InstrumentationTest extends ConfiguredTest implements TestPackageProvider,
     {
         testType = TestType.INSTRUMENTATION
         this.testPackageUploadType = UploadType.INSTRUMENTATION_TEST_PACKAGE
+        this.testSpecUploadType = UploadType.INSTRUMENTATION_TEST_SPEC
     }
 
     @Override
