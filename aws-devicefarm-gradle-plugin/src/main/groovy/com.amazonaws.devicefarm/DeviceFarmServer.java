@@ -62,8 +62,8 @@ public class DeviceFarmServer extends TestServer {
                             final Logger logger, final AWSDeviceFarmClient deviceFarmClient) throws IOException {
 
         this(extension, logger, deviceFarmClient,
-                new DeviceFarmUploader(deviceFarmClient, logger),
-                new DeviceFarmUtils(deviceFarmClient, extension));
+             new DeviceFarmUploader(deviceFarmClient, logger),
+             new DeviceFarmUtils(deviceFarmClient, extension));
     }
 
     public DeviceFarmServer(final DeviceFarmExtension extension,
@@ -170,8 +170,8 @@ public class DeviceFarmServer extends TestServer {
 
     private DeviceSelectionConfiguration getDeviceSelectionConfiguration(final DeviceFilter deviceFilter, int maxDevices) {
         return new DeviceSelectionConfiguration()
-        .withFilters(Collections.singleton(deviceFilter))
-        .withMaxDevices(maxDevices);
+                .withFilters(Collections.singleton(deviceFilter))
+                .withMaxDevices(maxDevices);
     }
 
 
@@ -231,10 +231,10 @@ public class DeviceFarmServer extends TestServer {
             final File testArtifacts = testPackageProvider.resolveTestPackage(testPackage);
 
             testArtifactsArn = uploader.upload(testArtifacts,
-                    project, testPackageProvider.getTestPackageUploadType()).getArn();
+                                               project, testPackageProvider.getTestPackageUploadType()).getArn();
 
             logger.lifecycle(String.format("Will run tests in %s, %s",
-                    testArtifacts.getName(), testArtifactsArn));
+                                           testArtifacts.getName(), testArtifactsArn));
 
         }
 
@@ -248,8 +248,8 @@ public class DeviceFarmServer extends TestServer {
         if (extension.getTest() instanceof TestPackageProvider) {
             final TestPackageProvider testPackageProvider = (TestPackageProvider) extension.getTest();
             testSpecFiles = uploader.batchUpload(extension.getDeviceState().getTestSpecFiles(),
-                                                                    project,
-                                                                    testPackageProvider.getTestSpecUploadType());
+                                                 project,
+                                                 testPackageProvider.getTestSpecUploadType());
         }
 
         if (testSpecFiles == null || testSpecFiles.size() == 0) {
@@ -267,7 +267,7 @@ public class DeviceFarmServer extends TestServer {
     private Collection<Upload> uploadAuxApps(final Project project) {
 
         final Collection<Upload> auxApps = uploader.batchUpload(extension.getDeviceState().getAuxiliaryApps(),
-                project, UploadType.ANDROID_APP);
+                                                                project, UploadType.ANDROID_APP);
 
         if (auxApps == null || auxApps.size() == 0) {
             return null;
@@ -275,7 +275,7 @@ public class DeviceFarmServer extends TestServer {
 
         for (Upload auxApp : auxApps) {
             logger.lifecycle(String.format("Will install additional app %s, %s",
-                    auxApp.getName(), auxApp.getArn()));
+                                           auxApp.getName(), auxApp.getArn()));
         }
 
         return auxApps;
@@ -294,7 +294,7 @@ public class DeviceFarmServer extends TestServer {
                     project, UploadType.EXTERNAL_DATA).getArn();
 
             logger.lifecycle(String.format("Will copy data from zip %s, %s",
-                    extraDataZip, extraDataArn));
+                                           extraDataZip, extraDataArn));
         }
 
         return extraDataArn;

@@ -44,7 +44,6 @@ trait TestPackageProvider {
      */
     File resolveTestPackage(File defaultTestPackage) { testPackage ?: defaultTestPackage }
 
-
     boolean isValid() {
         testPackage != null && testPackage.canRead()
     }
