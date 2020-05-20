@@ -70,6 +70,11 @@ class DeviceFarmExtension {
     boolean performanceMonitoring = true
 
     /**
+     * Split test cases across device pool devices
+     */
+    boolean testShardingEnabled = false
+
+    /**
      * Authentication credentials
      */
     Authentication authentication = new Authentication();
@@ -84,6 +89,12 @@ class DeviceFarmExtension {
      * as it tests the bundled androidTest apk
      */
     ConfiguredTest test = new InstrumentationTest();
+
+    /**
+    * This property will be used to shard the tests across devices
+    */
+    boolean testSharding = false
+
 
     DeviceFarmExtension(final Project project) {
         this.project = project;

@@ -15,10 +15,16 @@
 package com.amazonaws.devicefarm;
 
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
+import com.amazonaws.auth.STSSessionCredentialsProvider;
+import com.amazonaws.devicefarm.extension.Authentication;
 import com.amazonaws.devicefarm.extension.DeviceFarmExtension;
-import com.amazonaws.services.devicefarm.AWSDeviceFarmClient;
+import com.amazonaws.services.devicefarm.AWSDeviceFarm;
+import com.amazonaws.services.devicefarm.AWSDeviceFarmClientBuilder;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.gradle.api.logging.Logger;
 
@@ -30,37 +36,22 @@ import java.util.Properties;
  */
 public class DeviceFarmClientFactory {
 
-    final String pluginVersion;
+    private final String pluginVersion;
 
     public DeviceFarmClientFactory(final Logger logger) {
         this.pluginVersion = readPluginVersion();
         logger.lifecycle("AWS Device Farm Plugin version " + pluginVersion);
     }
 
-    public AWSDeviceFarmClient initializeApiClient(final DeviceFarmExtension extension) {
-
-        final String roleArn = extension.getAuthentication().getRoleArn();
-
-        AWSCredentials credentials = extension.getAuthentication();
-
-        if (roleArn != null) {
-            final STSAssumeRoleSessionCredentialsProvider sts = new STSAssumeRoleSessionCredentialsProvider
-                    .Builder(roleArn, RandomStringUtils.randomAlphanumeric(8))
-                    .build();
-            credentials = sts.getCredentials();
-        }
-
+    public AWSDeviceFarm initializeApiClient(final DeviceFarmExtension extension) {
+        final AWSDeviceFarmClientBuilder clientBuilder = AWSDeviceFarmClientBuilder.standard();
+        final Authentication authentication = extension.getAuthentication();
+        final AWSCredentialsProvider credentialsProvider = getAwsCredentialsProvider(authentication);
         final ClientConfiguration clientConfiguration = new ClientConfiguration()
-                .withUserAgent(String.format(extension.getUserAgent(), pluginVersion));
-
-        AWSDeviceFarmClient apiClient = new AWSDeviceFarmClient(credentials, clientConfiguration);
-        apiClient.setServiceNameIntern("devicefarm");
-        if (extension.getEndpointOverride() != null) {
-            apiClient.setEndpoint(extension.getEndpointOverride());
-        }
-
-        return apiClient;
-
+                .withUserAgentSuffix(String.format(extension.getUserAgent(), pluginVersion));
+        return clientBuilder.withCredentials(credentialsProvider)
+                            .withClientConfiguration(clientConfiguration)
+                            .build();
     }
 
     private static String readPluginVersion() {
@@ -75,5 +66,20 @@ public class DeviceFarmClientFactory {
         }
     }
 
-
+    private AWSCredentialsProvider getAwsCredentialsProvider(Authentication authentication) {
+        AWSCredentialsProvider credentialsProvider;
+        if (authentication != null && authentication.isValid()) {
+            if (authentication.getRoleArn() != null) {
+                credentialsProvider = new STSAssumeRoleSessionCredentialsProvider
+                        .Builder(authentication.getRoleArn(), RandomStringUtils.randomAlphanumeric(8))
+                        .build();
+            } else {
+                BasicAWSCredentials credentials = new BasicAWSCredentials(authentication.getAccessKey(), authentication.getSecretKey());
+                credentialsProvider = new STSSessionCredentialsProvider(credentials);
+            }
+        } else {
+            credentialsProvider = DefaultAWSCredentialsProviderChain.getInstance();
+        }
+        return credentialsProvider;
+    }
 }
